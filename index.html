@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Kiyora AI Prediction</title>
+
+<!-- FONT -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(to bottom,#C7ECFF,#bfeaff,#eaf8ff);
+    overflow-x:hidden;
+    color:#124d82;
+    min-height:100vh;
+    position:relative;
+}
+
+/* SKY BACKGROUND */
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+
+    background-image:url('./images/bluesky.jpg');
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+
+    opacity:0.32;
+
+    z-index:-3;
+}
+
+/* SUN LIGHT */
+
+body::after{
+    content:"";
+    position:fixed;
+    top:-150px;
+    left:-150px;
+    width:600px;
+    height:600px;
+    background:radial-gradient(circle,#ffffffb0,transparent 70%);
+    filter:blur(30px);
+    z-index:-2;
+}
+
+.container{
+    width:95%;
+    margin:auto;
+    padding-top:20px;
+}
+
+/* NAVBAR SAME DESIGN */
+
+.navbar{
+    height:100px;
+    padding:0 36px;
+
+    border-radius:32px;
+
+    display:grid;
+    grid-template-columns:260px 1fr 180px;
+    align-items:center;
+
+    background:rgba(255,255,255,0.18);
+    border:1px solid rgba(255,255,255,0.45);
+
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+
+    box-shadow:
+    0 8px 30px rgba(0,120,255,0.14);
+}
+
+.logo{
+    height:100%;
+
+    display:flex;
+    align-items:center;
+
+    font-size:3rem;
+    font-family:'Playfair Display',serif;
+    color:#0f4d84;
+    line-height:1;
+}
+
+.logo span{
+    color:#6ac9ff;
+    margin-left:12px;
+}
+
+.nav-links{
+    height:100%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    list-style:none;
+    gap:48px;
+}
+
+.nav-links li{
+    height:100%;
+    display:flex;
+    align-items:center;
+}
+
+.nav-links a{
+    height:100%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    text-decoration:none;
+
+    color:#13578e;
+    font-size:1.08rem;
+    font-weight:700;
+
+    transition:0.3s;
+}
+
+.products-top a{
+    text-decoration:none;
+}
+
+.nav-links a:hover,
+.nav-links a.active{
+    color:#2f8fff;
+}
+
+.nav-action{
+    height:100%;
+
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+}
+
+.glass-btn{
+    height:52px;
+    min-width:150px;
+
+    padding:0 30px;
+
+    border:none;
+    border-radius:50px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:rgba(255,255,255,0.22);
+    border:1px solid rgba(255,255,255,0.55);
+
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+
+    color:#16639f;
+    font-weight:700;
+    font-size:1rem;
+
+    box-shadow:
+    inset 0 2px 2px rgba(255,255,255,0.45),
+    0 10px 22px rgba(0,120,255,0.12);
+
+    cursor:pointer;
+    transition:0.4s;
+}
+
+.glass-btn:hover{
+    transform:translateY(-4px);
+}
+
+@media(max-width:900px){
+    .navbar{
+        height:auto;
+        padding:24px;
+
+        display:flex;
+        flex-direction:column;
+        gap:22px;
+    }
+
+    .logo{
+        height:auto;
+        justify-content:center;
+    }
+
+    .nav-links{
+        height:auto;
+        flex-wrap:wrap;
+        gap:24px;
+    }
+
+    .nav-links li,
+    .nav-links a{
+        height:auto;
+    }
+
+    .nav-action{
+        height:auto;
+        justify-content:center;
+    }
+}
+
+/* HERO */
+
+.hero{
+    min-height:90vh;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:40px 10px 20px;
+}
+
+/* LEFT */
+
+.left{
+    width:48%;
+}
+
+.small-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+
+    padding:12px 24px;
+
+    border-radius:40px;
+
+    background:rgba(255,255,255,0.18);
+    border:1px solid rgba(255,255,255,0.55);
+
+    backdrop-filter:blur(15px);
+
+    color:#2d82bc;
+
+    margin-bottom:28px;
+}
+
+.left h1{
+    font-size:6rem;
+    line-height:1;
+    font-family:'Playfair Display',serif;
+    color:#114b80;
+}
+
+.left h1 span{
+    color:#2d82bc;
+    font-style:italic;
+}
+
+.left p{
+    margin-top:30px;
+    font-size:1.25rem;
+    line-height:1.8;
+    color:#255f92;
+    width:90%;
+}
+
+/* FEATURES */
+
+.features{
+    display:flex;
+
+    justify-content:center;
+    align-items:flex-start;
+
+    gap:60px;
+
+    margin-top:50px;
+
+    flex-wrap:wrap;
+}
+
+.feature{
+
+    width:300px;
+
+    display:flex;
+    align-items:center;
+
+    gap:18px;
+}
+
+.feature-icon{
+
+    flex-shrink:0;
+
+    width:65px;
+    height:65px;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,0.2);
+    border:1px solid rgba(255,255,255,0.5);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:1.8rem;
+
+    backdrop-filter:blur(15px);
+
+    box-shadow:
+    0 10px 20px rgba(0,120,255,0.08);
+}
+
+.feature h4{
+
+    color:#12578e;
+
+    margin-bottom:6px;
+
+    font-size:1.15rem;
+
+    white-space:nowrap;
+}
+
+.feature p{
+    margin:0;
+
+    color:#5b88aa;
+
+    font-size:0.92rem;
+
+    line-height:1.5;
+
+    white-space:nowrap;
+}
+.feature-text{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+/* RIGHT */
+
+.right{
+    width:50%;
+    position:relative;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* WATER SPLASH */
+
+.splash{
+    position:absolute;
+    width:820px;
+    bottom:-70px;
+    z-index:1;
+}
+
+/* PRODUCT */
+
+.product{
+    width:400px;
+    z-index:3;
+
+    filter:drop-shadow(0 30px 40px rgba(0,110,255,0.28));
+
+    animation:floatBottle 5s ease-in-out infinite;
+}
+
+/* BUBBLE */
+
+.bubble{
+    position:absolute;
+
+    right:30px;
+    top:120px;
+
+    width:165px;
+    height:165px;
+    border-radius:50%;
+
+    background:rgba(255,255,255,0.2);
+    border:1px solid rgba(255,255,255,0.55);
+
+    backdrop-filter:blur(18px);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    text-align:center;
+
+    z-index:5;
+
+    color:#2c78b2;
+
+    box-shadow:
+    0 10px 25px rgba(0,120,255,0.12);
+}
+
+.bubble h2{
+    font-size:3rem;
+}
+
+/* AI BOX */
+
+.ai-box{
+    margin-top:20px;
+
+    background:rgba(255,255,255,0.18);
+    border:1px solid rgba(255,255,255,0.5);
+
+    border-radius:35px;
+
+    padding:38px;
+
+    backdrop-filter:blur(18px);
+
+    box-shadow:
+    0 10px 30px rgba(0,120,255,0.08);
+}
+
+.ai-title{
+    display:flex;
+    align-items:center;
+    gap:18px;
+
+    margin-bottom:30px;
+}
+
+.ai-icon{
+    width:70px;
+    height:70px;
+    border-radius:50%;
+
+    background:rgba(255,255,255,0.25);
+    border:1px solid rgba(255,255,255,0.5);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:2rem;
+
+    backdrop-filter:blur(15px);
+}
+
+.ai-title h2{
+    font-size:2.2rem;
+}
+
+.ai-title p{
+    color:#5b87aa;
+}
+
+/* FORM */
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:25px;
+}
+
+.input-group{
+    display:flex;
+    flex-direction:column;
+}
+
+.input-group label{
+    margin-bottom:12px;
+    font-weight:600;
+    color:#14558d;
+}
+
+.glass-input{
+    height:56px;
+
+    border:none;
+    border-radius:18px;
+
+    padding:0 18px;
+
+    background:rgba(255,255,255,0.22);
+    border:1px solid rgba(255,255,255,0.55);
+
+    backdrop-filter:blur(15px);
+
+    color:#13578f;
+    font-size:1rem;
+}
+
+/* PREDICT BUTTON */
+
+.predict-btn{
+    margin-top:35px;
+    width:100%;
+    height:62px;
+
+    border:none;
+    border-radius:24px;
+
+    background:rgba(255,255,255,0.2);
+    border:1px solid rgba(255,255,255,0.55);
+
+    backdrop-filter:blur(18px);
+
+    color:#1565a0;
+    font-size:1.1rem;
+    font-weight:700;
+
+    box-shadow:
+    inset 0 2px 2px rgba(255,255,255,0.45),
+    0 12px 24px rgba(0,120,255,0.12);
+
+    cursor:pointer;
+
+    transition:0.4s;
+}
+
+.predict-btn:hover{
+    transform:translateY(-4px);
+}
+
+/* RESULT */
+
+.result-box{
+    margin-top:30px;
+
+    background:rgba(255,255,255,0.18);
+    border:1px solid rgba(255,255,255,0.55);
+
+    border-radius:30px;
+
+    padding:30px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    backdrop-filter:blur(15px);
+}
+
+.result-left{
+    display:flex;
+    align-items:center;
+    gap:25px;
+}
+
+.percent{
+    width:160px;
+    height:160px;
+    border-radius:50%;
+
+    background:rgba(255,255,255,0.2);
+    border:1px solid rgba(255,255,255,0.5);
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    backdrop-filter:blur(15px);
+
+    color:#2273ae;
+}
+
+.percent h1{
+    font-size:4rem;
+}
+
+.result-text h2{
+    font-size:2rem;
+    margin-bottom:12px;
+}
+
+.result-text p{
+    line-height:1.8;
+    color:#4f7ea5;
+}
+
+.result-shield{
+    width:170px;
+}
+
+/* PRODUCTS */
+
+.products{
+    margin-top:50px;
+    padding-bottom:50px;
+}
+
+.products-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:25px;
+}
+
+.products-top h2{
+    font-size:2.2rem;
+    font-family:'Playfair Display',serif;
+}
+
+.product-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:22px;
+}
+
+.card{
+    height:320px;
+
+    border-radius:30px;
+
+    background:rgba(255,255,255,0.18);
+    border:1px solid rgba(255,255,255,0.5);
+
+    backdrop-filter:blur(15px);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    overflow:hidden;
+
+    transition:0.4s;
+}
+
+.card:hover{
+    transform:translateY(-10px);
+}
+
+.card img{
+    width:170px;
+}
+
+/* ANIMATION */
+
+@keyframes floatBottle{
+
+    0%{
+        transform:translateY(0px) rotate(-3deg);
+    }
+
+    50%{
+        transform:translateY(-18px) rotate(2deg);
+    }
+
+    100%{
+        transform:translateY(0px) rotate(-3deg);
+    }
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1200px){
+
+    .hero{
+        flex-direction:column;
+        text-align:center;
+    }
+
+    .left,
+    .right{
+        width:100%;
+    }
+
+    .features{
+        justify-content:center;
+        flex-wrap:wrap;
+    }
+
+    .left h1{
+        font-size:4rem;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .product-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .result-box{
+        flex-direction:column;
+        gap:30px;
+    }
+}
+
+@media(max-width:768px){
+
+    .navbar{
+        flex-direction:column;
+        height:auto;
+        padding:20px;
+        gap:20px;
+    }
+
+    .nav-links{
+        flex-wrap:wrap;
+        justify-content:center;
+    }
+
+    .left h1{
+        font-size:3rem;
+    }
+
+    .product{
+        width:270px;
+    }
+
+    .splash{
+        width:500px;
+    }
+
+    .product-grid{
+        grid-template-columns:1fr;
+    }
+
+    .result-left{
+        flex-direction:column;
+    }
+}
+/* ===== PREMIUM GLASS DROPDOWN ===== */
+
+.glass-input{
+
+    appearance:none;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+
+    width:100%;
+    height:62px;
+
+    padding:0 24px;
+
+    border-radius:24px;
+
+    border:1.5px solid rgba(255,255,255,0.55);
+
+    background:
+    linear-gradient(
+        135deg,
+        rgba(255,255,255,0.30),
+        rgba(255,255,255,0.10)
+    );
+
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+
+    color:#14558d;
+
+    font-size:1rem;
+    font-weight:600;
+    letter-spacing:0.2px;
+
+    outline:none;
+
+    box-shadow:
+    inset 0 2px 6px rgba(255,255,255,0.45),
+    inset 0 -2px 6px rgba(255,255,255,0.08),
+    0 10px 25px rgba(0,120,255,0.10);
+
+    transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    background 0.35s ease,
+    border 0.35s ease;
+
+    cursor:pointer;
+
+    /* ARROW */
+
+    background-image:
+    linear-gradient(
+        135deg,
+        rgba(255,255,255,0.18),
+        rgba(255,255,255,0.04)
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%2314558d' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 7 10 12 15 7'/%3E%3C/svg%3E");
+
+    background-repeat:no-repeat,no-repeat;
+    background-position:center,right 20px center;
+    background-size:100%,18px;
+}
+
+/* HOVER */
+
+.glass-input:hover{
+
+    transform:translateY(-3px);
+
+    border:1.5px solid rgba(255,255,255,0.75);
+
+    background:
+    linear-gradient(
+        135deg,
+        rgba(255,255,255,0.40),
+        rgba(255,255,255,0.16)
+    );
+
+    box-shadow:
+    inset 0 2px 8px rgba(255,255,255,0.55),
+    0 14px 35px rgba(0,140,255,0.16);
+}
+
+/* FOCUS */
+
+.glass-input:focus{
+
+    border:1.5px solid rgba(255,255,255,0.85);
+
+    background:
+    linear-gradient(
+        135deg,
+        rgba(255,255,255,0.48),
+        rgba(255,255,255,0.18)
+    );
+
+    box-shadow:
+    0 0 0 6px rgba(135,206,250,0.18),
+    0 14px 40px rgba(0,140,255,0.18);
+}
+
+/* INPUT PLACEHOLDER */
+
+.glass-input::placeholder{
+    color:#5b8db3;
+    font-weight:500;
+}
+
+/* ===== DROPDOWN MENU ===== */
+
+.glass-input option{
+
+    background:rgba(235,248,255,0.98);
+    color:#14558d;
+
+    padding:14px;
+
+    font-weight:600;
+
+    border:none;
+}
+
+/* WINDOWS FIX */
+
+select::-ms-expand{
+    display:none;
+}
+
+/* ===== GLASS MULTI SELECT ===== */
+
+.glass-multi-select{
+
+    min-height:62px;
+
+    padding:18px;
+
+    border-radius:24px;
+
+    border:1.5px solid rgba(255,255,255,0.55);
+
+    background:
+    linear-gradient(
+        135deg,
+        rgba(255,255,255,0.30),
+        rgba(255,255,255,0.10)
+    );
+
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+
+    box-shadow:
+    inset 0 2px 6px rgba(255,255,255,0.45),
+    inset 0 -2px 6px rgba(255,255,255,0.08),
+    0 10px 25px rgba(0,120,255,0.10);
+
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+
+    transition:0.35s ease;
+}
+
+.glass-multi-select:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:
+    0 14px 35px rgba(0,140,255,0.16);
+}
+
+/* CHIP */
+
+.glass-check{
+
+    position:relative;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:11px 18px;
+
+    border-radius:50px;
+
+    background:
+    linear-gradient(
+        135deg,
+        rgba(255,255,255,0.42),
+        rgba(255,255,255,0.16)
+    );
+
+    border:1px solid rgba(255,255,255,0.55);
+
+    backdrop-filter:blur(12px);
+
+    color:#14558d;
+
+    font-size:0.95rem;
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:0.3s ease;
+
+    overflow:hidden;
+}
+
+.glass-check:hover{
+
+    transform:translateY(-2px) scale(1.03);
+
+    box-shadow:
+    0 8px 20px rgba(0,120,255,0.12);
+}
+
+/* HIDE CHECKBOX */
+
+.glass-check input{
+    display:none;
+}
+
+.glass-check span{
+    position:relative;
+    z-index:2;
+}
+
+/* ACTIVE */
+
+.glass-check input:checked + span{
+    color:#ffffff;
+}
+
+.glass-check input:checked + span::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:-12px -18px;
+
+    background:
+    linear-gradient(
+        135deg,
+        #67d2ff,
+        #2f8fff
+    );
+
+    border-radius:50px;
+
+    z-index:-1;
+
+    box-shadow:
+    0 10px 25px rgba(0,140,255,0.30);
+}
+
+@media(max-width:768px){
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            kiyora<span> ✦ </span>
+        </div>
+
+        <ul class="nav-links">
+
+            <li><a href="#">Home</a></li>
+            <li><a href="index.html#prediction">AI Prediction</a></li>
+            <li><a href="products.html">Products</a></li>
+
+        </ul>
+
+        <button class="glass-btn" onclick="window.location.href='dashboard.html'">
+            Dashboard
+        </button>
+
+    </nav>
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <!-- LEFT -->
+
+        <div class="left">
+
+            <div class="small-tag">
+                AI CUSTOMER PREDICTION
+            </div>
+
+            <h1>
+                Cleansing Water <br>
+                for <span>Every Skin</span>
+            </h1>
+
+            <p>
+                แพลตฟอร์มวิเคราะห์พฤติกรรมผู้บริโภคด้วย AI สำหรับ Kiyora Clean
+                ออกแบบมาเพื่อประเมินแนวโน้มการตัดสินใจซื้อ ความภักดีต่อแบรนด์ (Customer Loyalty)
+                และวิเคราะห์โอกาสในการกลับมาเป็นลูกค้าประจำ
+                พร้อมนำเสนอคำแนะนำเชิงกลยุทธ์ด้านการตลาด
+                เพื่อช่วยให้แบรนด์กลับมาอยู่ในใจผู้บริโภคอีกครั้ง
+            </p>
+
+            <!-- FEATURES -->
+
+            <div class="features">
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        💧
+                    </div>
+
+                    <div class="feature-text">
+                        <h4>Hydrating</h4>
+                        <p>เพิ่มความชุ่มชื้น</p>
+                    </div>
+
+                </div>
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        🫧
+                    </div>
+
+                    <div class="feature-text">
+                        <h4>Deep Clean</h4>
+                        <p>ทำความสะอาดล้ำลึก</p>
+                    </div>
+
+                </div>
+
+                <div class="feature">
+
+                    <div class="feature-icon">
+                        ☁️
+                    </div>
+
+                    <div class="feature-text">
+                        <h4>Gentle Care</h4>
+                        <p>อ่อนโยนทุกสภาพผิว</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+
+        <div class="right">
+
+            <img
+            class="splash"
+            src="./images/splash.png">
+
+            <img
+            class="product"
+            src="./images/Kiyora.png">
+
+            <div class="bubble">
+
+                <div class="feature-text">
+
+                    <h2>0%</h2>
+
+                    Alcohol<br>
+                    Fragrance<br>
+                    Paraben
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- AI BOX -->
+
+    <section class="ai-box" id="prediction">
+
+        <div class="ai-title">
+
+            <div class="ai-icon">
+                🫧
+            </div>
+
+            <div>
+
+                <h2>AI Not Loyal Prediction</h2>
+
+                <p>
+                    กรอกข้อมูลผู้บริโภคเพื่อวิเคราะห์ความเสี่ยงที่จะไม่ใช่กลุ่มลูกค้า
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- FORM -->
+
+        <div class="form-grid">
+
+            <div class="input-group">
+
+                <label>สภาพผิวหน้า</label>
+
+                <select class="glass-input" id="skinType">
+                    <option>ผิวมัน</option>
+                    <option>ผิวแห้ง</option>
+                    <option>ผิวผสม</option>
+                    <option>ผิวธรรมดา</option>
+                    <option>ผิวแพ้ง่าย</option>
+                </select>
+
+            </div>
+
+            <div class="input-group">
+
+                <label>อายุ</label>
+
+                <input class="glass-input" id="age" type="number" min="12" max="80" placeholder="เช่น 22">
+
+            </div>
+
+            <div class="input-group">
+
+                <label>แต่งหน้าบ่อยไหม</label>
+
+                <select class="glass-input" id="makeupFrequency">
+                    <option>บ่อย</option>
+                    <option>บางครั้ง</option>
+                    <option>ไม่ค่อย</option>
+                </select>
+
+            </div>
+
+            <div class="input-group">
+
+    <label>ปัญหาผิวหลัก</label>
+
+    <div class="glass-multi-select">
+
+        <label class="glass-check">
+            <input type="checkbox" name="skinProblems" value="สิวอักเสบ">
+            <span>สิวอักเสบ</span>
+        </label>
+
+        <label class="glass-check">
+            <input type="checkbox" name="skinProblems" value="สิวผด">
+            <span>สิวผด</span>
+        </label>
+
+        <label class="glass-check">
+            <input type="checkbox" name="skinProblems" value="รูขุมขนกว้าง">
+            <span>รูขุมขนกว้าง</span>
+        </label>
+
+        <label class="glass-check">
+            <input type="checkbox" name="skinProblems" value="ผิวมันเยิ้ม">
+            <span>ผิวมันเยิ้ม</span>
+        </label>
+
+        <label class="glass-check">
+            <input type="checkbox" name="skinProblems" value="ผิวแห้ง/ลอก/เป็นขุย">
+            <span>ผิวแห้ง/ลอก/เป็นขุย</span>
+        </label>
+
+        <label class="glass-check">
+            <input type="checkbox" name="skinProblems" value="ผิวแพ้ง่าย">
+            <span>ผิวแพ้ง่าย</span>
+        </label>
+
+        <label class="glass-check">
+            <input type="checkbox" name="skinProblems" value="ผิวหมองคล้ำ">
+            <span>ผิวหมองคล้ำ</span>
+        </label>
+
+        <label class="glass-check">
+            <input type="checkbox" name="skinProblems" value="ไม่มีปัญหาผิว">
+            <span>ไม่มีปัญหาผิว</span>
+        </label>
+
+    </div>
+            </div>
+
+            <div class="input-group">
+
+                <label>งบประมาณต่อเดือน</label>
+
+                <select class="glass-input" id="budget">
+                    <option>ต่ำกว่า 300</option>
+                    <option>300–500</option>
+                    <option>500–1000</option>
+                    <option>1000–2000</option>
+                    <option>มากกว่า 2,000</option>
+                </select>
+
+            </div>
+
+            <div class="input-group">
+
+                <label>เคยใช้ Cleansing Water ไหม</label>
+
+                <select class="glass-input" id="usedBefore">
+                    <option>เคย</option>
+                    <option>ไม่เคย</option>
+                </select>
+
+            </div>
+
+        </div>
+
+        <!-- BUTTON -->
+
+        <button class="predict-btn" id="predictBtn">
+            ✨ วิเคราะห์ลูกค้า
+        </button>
+
+    </section>
+
+    <!-- RESULT -->
+
+    <section class="result-box">
+
+        <div class="result-left">
+
+            <div class="percent">
+
+                <h1 id="riskPercent">- %</h1>
+
+                <strong id="riskLevel">-</strong>
+
+            </div>
+
+            <div class="result-text">
+
+                <h2 id="clusterName">READY TO ANALYZE</h2>
+
+                <p id="predictionSummary">
+                    Waiting for customer data analysis...
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- PRODUCTS -->
+
+    <section class="products">
+
+        <div class="products-top">
+
+            <h2>
+                Best Seller Products
+            </h2>
+
+            <a href="products.html">
+            <button class="glass-btn">
+                View All Products →
+            </button>
+            </a>
+
+        </div>
+
+        <!-- PRODUCT GRID -->
+
+        <div class="product-grid">
+
+            <div class="card">
+
+                <img src="./images/Kiyora.png">
+
+            </div>
+
+            <div class="card">
+
+                <img src="./images/Kiyora2.png">
+
+            </div>
+
+            <div class="card">
+
+                <img src="./images/Kiyora3.png">
+
+            </div>
+
+            <div class="card">
+
+                <img src="./images/Kiyora4.png">
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+        © 2026 Kiyora Clean — Gentle Care for Every Skin
+    </div>
+    
+</div>
+
+
+<script>
+const API_BASE = window.location.origin;
+
+function collectPredictionPayload(){
+    return {
+        skin_type: document.getElementById('skinType').value,
+        age: document.getElementById('age').value || 25,
+        makeup_frequency: document.getElementById('makeupFrequency').value,
+        skin_problems: Array.from(document.querySelectorAll('input[name="skinProblems"]:checked')).map(item => item.value),
+        budget: document.getElementById('budget').value,
+        used_cleansing: document.getElementById('usedBefore').value
+    };
+}
+
+function renderPrediction(data){
+
+    const risk = data.not_loyal_risk ?? data.not_loyal_percent ?? 0;
+    const loyalty = data.loyalty_percent ?? data.loyaltyPercent ?? 0;
+    const repeat = data.repeat_probability ?? data.repeatProbabilityPercent ?? 0;
+    const purchase = data.purchase_intent ?? data.purchaseIntentPercent ?? 0;
+
+    document.getElementById('riskPercent').innerText = risk + "%";
+
+    document.getElementById('riskLevel').innerText =
+        (data.risk_level ?? "LOW") + " RISK";
+
+    document.getElementById('clusterName').textContent =
+        data.segment_name ?? data.cluster?.name ?? "Prediction Result";
+
+    document.getElementById('predictionSummary').innerHTML = `
+        ${data.analysis ?? data.summary ?? "วิเคราะห์สำเร็จ"}<br><br>
+
+        <strong>Customer Loyalty:</strong> ${loyalty}%<br>
+        <strong>Repeat Probability:</strong> ${repeat}%<br>
+        <strong>Purchase Intent:</strong> ${purchase}%<br><br>
+
+        <strong>Strategic Recommendation:</strong><br>
+        ${data.marketing_strategy ?? "-"}
+    `;
+}
+
+document.getElementById('predictBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('predictBtn');
+    btn.textContent = 'กำลังวิเคราะห์...';
+    btn.disabled = true;
+
+    try{
+        const response = await fetch(`${API_BASE}/api/predict`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(collectPredictionPayload())
+        });
+        const data = await response.json();
+        renderPrediction(data);
+    }catch(error){
+        document.getElementById('predictionSummary').textContent = 'ไม่สามารถเชื่อมต่อ Backend ได้ กรุณารัน python app.py ก่อน';
+    }finally{
+        btn.textContent = '✨ วิเคราะห์ลูกค้า';
+        btn.disabled = false;
+    }
+});
+</script>
+
+</body>
+</html>

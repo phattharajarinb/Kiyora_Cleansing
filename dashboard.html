@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiyora Dashboard</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(to bottom,#C7ECFF,#bfeaff,#eaf8ff);
+    overflow-x:hidden;
+    color:#124d82;
+    min-height:100vh;
+    position:relative;
+}
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background-image:url('./images/bluesky.jpg');
+    background-size:cover;
+    background-position:center;
+    opacity:.30;
+    z-index:-3;
+}
+.container{width:95%;margin:auto;padding-top:20px}
+/* NAVBAR SAME DESIGN */
+
+.navbar{
+    height:100px;
+    padding:0 36px;
+
+    border-radius:32px;
+
+    display:grid;
+    grid-template-columns:260px 1fr 180px;
+    align-items:center;
+
+    background:rgba(255,255,255,0.18);
+    border:1px solid rgba(255,255,255,0.45);
+
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+
+    box-shadow:
+    0 8px 30px rgba(0,120,255,0.14);
+}
+
+.logo{
+    height:100%;
+
+    display:flex;
+    align-items:center;
+
+    font-size:3rem;
+    font-family:'Playfair Display',serif;
+    color:#0f4d84;
+    line-height:1;
+}
+
+.logo span{
+    color:#6ac9ff;
+    margin-left:12px;
+}
+
+.nav-links{
+    height:100%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    list-style:none;
+    gap:48px;
+}
+
+.nav-links li{
+    height:100%;
+    display:flex;
+    align-items:center;
+}
+
+.nav-links a{
+    height:100%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    text-decoration:none;
+
+    color:#13578e;
+    font-size:1.08rem;
+    font-weight:700;
+
+    transition:0.3s;
+}
+
+.nav-links a:hover,
+.nav-links a.active{
+    color:#2f8fff;
+}
+
+.nav-action{
+    height:100%;
+
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+}
+
+.glass-btn{
+    height:52px;
+    min-width:150px;
+
+    padding:0 30px;
+
+    border:none;
+    border-radius:50px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:rgba(255,255,255,0.22);
+    border:1px solid rgba(255,255,255,0.55);
+
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+
+    color:#16639f;
+    font-weight:700;
+    font-size:1rem;
+
+    box-shadow:
+    inset 0 2px 2px rgba(255,255,255,0.45),
+    0 10px 22px rgba(0,120,255,0.12);
+
+    cursor:pointer;
+    transition:0.4s;
+}
+
+.glass-btn:hover{
+    transform:translateY(-4px);
+}
+
+@media(max-width:900px){
+    .navbar{
+        height:auto;
+        padding:24px;
+
+        display:flex;
+        flex-direction:column;
+        gap:22px;
+    }
+
+    .logo{
+        height:auto;
+        justify-content:center;
+    }
+
+    .nav-links{
+        height:auto;
+        flex-wrap:wrap;
+        gap:24px;
+    }
+
+    .nav-links li,
+    .nav-links a{
+        height:auto;
+    }
+
+    .nav-action{
+        height:auto;
+        justify-content:center;
+    }
+}
+.hero{text-align:center;padding:80px 20px 45px}
+.small-tag{
+    display:inline-flex;
+    padding:12px 24px;
+    border-radius:40px;
+    background:rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.55);
+    color:#2d82bc;
+    margin-bottom:28px;
+}
+.hero h1{
+    font-size:5rem;
+    line-height:1.1;
+    font-family:'Playfair Display',serif;
+    color:#114b80;
+}
+.hero h1 span{color:#2d82bc;font-style:italic}
+.hero p{
+    margin:auto;
+    margin-top:25px;
+    width:75%;
+    font-size:1.15rem;
+    line-height:1.9;
+    color:#3d6f98;
+}
+.dashboard-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:25px;
+    margin-bottom:35px;
+}
+.dashboard-card,.chart-card,.table-card{
+    border-radius:35px;
+    background:rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.5);
+    backdrop-filter:blur(18px);
+    padding:30px;
+    box-shadow:0 10px 30px rgba(0,120,255,.08);
+}
+.card-icon{
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    background:rgba(255,255,255,.25);
+    border:1px solid rgba(255,255,255,.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:2rem;
+    margin-bottom:20px;
+}
+.dashboard-card h3{font-size:1.1rem;margin-bottom:12px;color:#14558d}
+.dashboard-card p{color:#5b87aa;line-height:1.6;margin-bottom:10px}
+.stat{font-size:2.4rem;font-weight:800;color:#2f8fff}
+.analytics{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:28px;
+    margin-bottom:35px;
+}
+.chart-card h2,.table-card h2{margin-bottom:20px;color:#14558d}
+canvas{width:100%!important;max-height:360px}
+.table-card{margin-bottom:60px}
+table{width:100%;border-collapse:collapse}
+th,td{
+    padding:14px;
+    text-align:left;
+    border-bottom:1px solid rgba(255,255,255,.45);
+    color:#14558d;
+}
+th{font-weight:800}
+.footer{text-align:center;padding:30px 20px 50px;color:#5b87aa}
+@media(max-width:1200px){
+    .dashboard-grid{grid-template-columns:repeat(2,1fr)}
+    .analytics{grid-template-columns:1fr}
+    .hero p{width:100%}
+}
+@media(max-width:768px){
+    .navbar{flex-direction:column;gap:20px}
+    .nav-links{flex-wrap:wrap;justify-content:center}
+    .dashboard-grid{grid-template-columns:1fr}
+    .hero h1{font-size:3rem}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<nav class="navbar">
+    <div class="logo">kiyora<span> ✦ </span></div>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#prediction">AI Prediction</a></li>
+        <li><a href="products.html">Products</a></li>
+    </ul>
+    <button class="glass-btn" onclick="loadDashboard()">Refresh</button>
+</nav>
+
+<section class="hero">
+    <div class="small-tag">KIYORA AI ANALYTICS</div>
+    <h1>Customer Insight <br><span>Dashboard</span></h1>
+    <p>
+        Dashboard นี้ดึงข้อมูลจริงจากการกดวิเคราะห์ในหน้า AI Prediction
+        เพื่อแสดงผลรวม ความภักดี ความเสี่ยงไม่ Loyal โอกาสซื้อซ้ำ และ Segment ของลูกค้า
+    </p>
+</section>
+
+<section class="dashboard-grid">
+    <div class="dashboard-card">
+        <div class="card-icon">👥</div>
+        <h3>Total Predictions</h3>
+        <p>จำนวนลูกค้าที่ถูกวิเคราะห์จริง</p>
+        <div class="stat" id="totalCustomers">0</div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="card-icon">💙</div>
+        <h3>Average Loyalty</h3>
+        <p>ค่าเฉลี่ยความภักดีต่อแบรนด์</p>
+        <div class="stat" id="avgLoyalty">0%</div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="card-icon">⚠️</div>
+        <h3>Not Loyal Risk</h3>
+        <p>ค่าเฉลี่ยความเสี่ยงที่จะไม่ Loyal</p>
+        <div class="stat" id="avgRisk">0%</div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="card-icon">🔁</div>
+        <h3>Repeat Probability</h3>
+        <p>ค่าเฉลี่ยโอกาสกลับมาซื้อซ้ำ</p>
+        <div class="stat" id="avgRepeat">0%</div>
+    </div>
+</section>
+
+<section class="analytics">
+    <div class="chart-card">
+        <h2>Customer Segment Distribution</h2>
+        <canvas id="segmentChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <h2>Average KPI Comparison</h2>
+        <canvas id="kpiChart"></canvas>
+    </div>
+</section>
+
+<section class="analytics">
+    <div class="chart-card">
+        <h2>Daily Prediction Trend</h2>
+        <canvas id="trendChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+        <h2>Risk vs Loyalty</h2>
+        <canvas id="riskLoyaltyChart"></canvas>
+    </div>
+</section>
+
+<section class="table-card">
+    <h2>Latest Prediction Results</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Segment</th>
+                <th>Risk</th>
+                <th>Loyalty</th>
+                <th>Repeat</th>
+                <th>Analysis</th>
+            </tr>
+        </thead>
+        <tbody id="latestTable">
+            <tr><td colspan="6">ยังไม่มีข้อมูล</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<div class="footer">© 2026 Kiyora Clean — Gentle Care for Every Skin</div>
+
+</div>
+
+<script>
+let segmentChart;
+let kpiChart;
+let trendChart;
+let riskLoyaltyChart;
+
+function destroyChart(chart){
+    if(chart){
+        chart.destroy();
+    }
+}
+
+async function loadDashboard(){
+    try{
+        const response = await fetch('/api/dashboard');
+        const data = await response.json();
+
+        document.getElementById('totalCustomers').innerText = data.total_customers;
+        document.getElementById('avgLoyalty').innerText = data.avg_loyalty + "%";
+        document.getElementById('avgRisk').innerText = data.avg_not_loyal_risk + "%";
+        document.getElementById('avgRepeat').innerText = data.avg_repeat_probability + "%";
+
+        renderSegmentChart(data);
+        renderKpiChart(data);
+        renderTrendChart(data);
+        renderRiskLoyaltyChart(data);
+        renderLatestTable(data.latest);
+    }
+    catch(error){
+        alert("ไม่สามารถโหลด Dashboard ได้ กรุณารัน python app.py ก่อน");
+    }
+}
+
+function renderSegmentChart(data){
+    destroyChart(segmentChart);
+
+    const labels = data.segments.map(item => item.name);
+    const values = data.segments.map(item => item.count);
+
+    segmentChart = new Chart(document.getElementById('segmentChart'), {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+function renderKpiChart(data){
+    destroyChart(kpiChart);
+
+    kpiChart = new Chart(document.getElementById('kpiChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Loyalty', 'Not Loyal Risk', 'Repeat', 'Purchase Intent'],
+            datasets: [{
+                label: 'Average Percent',
+                data: [
+                    data.avg_loyalty,
+                    data.avg_not_loyal_risk,
+                    data.avg_repeat_probability,
+                    data.avg_purchase_intent
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero:true, max:100 }
+            }
+        }
+    });
+}
+
+function renderTrendChart(data){
+    destroyChart(trendChart);
+
+    const labels = data.monthly.map(item => item.date);
+    const loyalty = data.monthly.map(item => item.avg_loyalty);
+    const risk = data.monthly.map(item => item.avg_risk);
+    const repeat = data.monthly.map(item => item.avg_repeat);
+
+    trendChart = new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Loyalty',
+                    data: loyalty,
+                    tension: .35
+                },
+                {
+                    label: 'Risk',
+                    data: risk,
+                    tension: .35
+                },
+                {
+                    label: 'Repeat',
+                    data: repeat,
+                    tension: .35
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero:true, max:100 }
+            }
+        }
+    });
+}
+
+function renderRiskLoyaltyChart(data){
+    destroyChart(riskLoyaltyChart);
+
+    const latest = data.latest || [];
+
+    riskLoyaltyChart = new Chart(document.getElementById('riskLoyaltyChart'), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Customer',
+                data: latest.map(item => ({
+                    x: item.not_loyal_risk,
+                    y: item.loyalty_percent
+                }))
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    beginAtZero:true,
+                    max:100,
+                    title:{display:true,text:'Not Loyal Risk'}
+                },
+                y: {
+                    beginAtZero:true,
+                    max:100,
+                    title:{display:true,text:'Loyalty'}
+                }
+            }
+        }
+    });
+}
+
+function renderLatestTable(latest){
+    const tbody = document.getElementById('latestTable');
+
+    if(!latest || latest.length === 0){
+        tbody.innerHTML = '<tr><td colspan="6">ยังไม่มีข้อมูล</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = latest.map(item => `
+        <tr>
+            <td>${item.created_at}</td>
+            <td>${item.segment_name}</td>
+            <td>${item.not_loyal_risk}%</td>
+            <td>${item.loyalty_percent}%</td>
+            <td>${item.repeat_probability}%</td>
+            <td>${item.analysis}</td>
+        </tr>
+    `).join('');
+}
+
+loadDashboard();
+</script>
+
+</body>
+</html>

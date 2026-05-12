@@ -1,0 +1,411 @@
+[
+  {
+    "created_at": "2026-05-12 21:03:03",
+    "input": {
+      "skinType": "ผิวผสม",
+      "age": "21",
+      "makeupFrequency": "บ่อย",
+      "skinProblems": [
+        "สิวอักเสบ",
+        "สิวผด",
+        "ผิวแห้ง/ลอก/เป็นขุย",
+        "ผิวแพ้ง่าย"
+      ],
+      "budget": "300–500",
+      "usedBefore": "เคย"
+    },
+    "features": {
+      "age": 21,
+      "skin_oily": 0,
+      "skin_dry": 0,
+      "skin_combo": 0,
+      "skin_sensitive": 0,
+      "makeup_score": 2,
+      "problem_count": 0,
+      "budget_score": 2,
+      "used_cleansing": 1,
+      "safety_priority": 2.8,
+      "efficacy_priority": 2.8,
+      "comfort_priority": 3.0
+    },
+    "cluster": 0,
+    "segment_name": "Sensitive Loyal Potential",
+    "not_loyal_risk": 9,
+    "loyalty_percent": 91,
+    "repeat_probability": 96,
+    "purchase_intent": 71,
+    "confidence": 45,
+    "risk_level": "LOW",
+    "loyalty_level": "HIGH",
+    "analysis": "มีแนวโน้มภักดีต่อแบรนด์และมีโอกาสกลับมาซื้อซ้ำค่อนข้างสูง",
+    "marketing_strategy": "เน้นสื่อสารความอ่อนโยน ปลอดภัย ไม่มีแอลกอฮอล์ น้ำหอม และพาราเบน พร้อมใช้รีวิวจากผู้ใช้ผิวแพ้ง่าย",
+    "distances": {
+      "cluster_0": 3.317,
+      "cluster_1": 5.5292,
+      "cluster_2": 5.3433,
+      "cluster_3": 3.5875
+    }
+  },
+  {
+    "created_at": "2026-05-12 21:07:12",
+    "input": {
+      "skinType": "ผิวแห้ง",
+      "age": "21",
+      "makeupFrequency": "บ่อย",
+      "skinProblems": [
+        "สิวอักเสบ",
+        "ผิวแห้ง/ลอก/เป็นขุย",
+        "ผิวแพ้ง่าย"
+      ],
+      "budget": "ต่ำกว่า 300",
+      "usedBefore": "เคย"
+    },
+    "features": {
+      "age": 21,
+      "skin_oily": 0,
+      "skin_dry": 0,
+      "skin_combo": 0,
+      "skin_sensitive": 0,
+      "makeup_score": 2,
+      "problem_count": 0,
+      "budget_score": 1,
+      "used_cleansing": 1,
+      "safety_priority": 2.8,
+      "efficacy_priority": 2.8,
+      "comfort_priority": 3.0
+    },
+    "cluster": 0,
+    "segment_name": "Sensitive Loyal Potential",
+    "not_loyal_risk": 13,
+    "loyalty_percent": 87,
+    "repeat_probability": 92,
+    "purchase_intent": 71,
+    "confidence": 45,
+    "risk_level": "LOW",
+    "loyalty_level": "HIGH",
+    "analysis": "มีแนวโน้มภักดีต่อแบรนด์และมีโอกาสกลับมาซื้อซ้ำค่อนข้างสูง",
+    "marketing_strategy": "เน้นสื่อสารความอ่อนโยน ปลอดภัย ไม่มีแอลกอฮอล์ น้ำหอม และพาราเบน พร้อมใช้รีวิวจากผู้ใช้ผิวแพ้ง่าย",
+    "distances": {
+      "cluster_0": 3.3214,
+      "cluster_1": 5.8957,
+      "cluster_2": 5.5248,
+      "cluster_3": 3.6559
+    }
+  },
+  {
+    "created_at": "2026-05-12 21:07:17",
+    "input": {
+      "skinType": "ผิวแห้ง",
+      "age": "21",
+      "makeupFrequency": "บ่อย",
+      "skinProblems": [
+        "สิวอักเสบ",
+        "ผิวแห้ง/ลอก/เป็นขุย",
+        "ผิวแพ้ง่าย"
+      ],
+      "budget": "ต่ำกว่า 300",
+      "usedBefore": "เคย"
+    },
+    "features": {
+      "age": 21,
+      "skin_oily": 0,
+      "skin_dry": 0,
+      "skin_combo": 0,
+      "skin_sensitive": 0,
+      "makeup_score": 2,
+      "problem_count": 0,
+      "budget_score": 1,
+      "used_cleansing": 1,
+      "safety_priority": 2.8,
+      "efficacy_priority": 2.8,
+      "comfort_priority": 3.0
+    },
+    "cluster": 0,
+    "segment_name": "Sensitive Loyal Potential",
+    "not_loyal_risk": 13,
+    "loyalty_percent": 87,
+    "repeat_probability": 92,
+    "purchase_intent": 71,
+    "confidence": 45,
+    "risk_level": "LOW",
+    "loyalty_level": "HIGH",
+    "analysis": "มีแนวโน้มภักดีต่อแบรนด์และมีโอกาสกลับมาซื้อซ้ำค่อนข้างสูง",
+    "marketing_strategy": "เน้นสื่อสารความอ่อนโยน ปลอดภัย ไม่มีแอลกอฮอล์ น้ำหอม และพาราเบน พร้อมใช้รีวิวจากผู้ใช้ผิวแพ้ง่าย",
+    "distances": {
+      "cluster_0": 3.3214,
+      "cluster_1": 5.8957,
+      "cluster_2": 5.5248,
+      "cluster_3": 3.6559
+    }
+  },
+  {
+    "created_at": "2026-05-12 21:12:03",
+    "input": {
+      "skinType": "ผิวผสม",
+      "age": "22",
+      "makeupFrequency": "บ่อย",
+      "skinProblems": [
+        "สิวอักเสบ",
+        "สิวผด",
+        "ผิวแห้ง/ลอก/เป็นขุย",
+        "ผิวแพ้ง่าย"
+      ],
+      "budget": "300–500",
+      "usedBefore": "เคย"
+    },
+    "features": {
+      "age": 22,
+      "skin_oily": 0,
+      "skin_dry": 0,
+      "skin_combo": 0,
+      "skin_sensitive": 0,
+      "makeup_score": 2,
+      "problem_count": 0,
+      "budget_score": 2,
+      "used_cleansing": 1,
+      "safety_priority": 2.8,
+      "efficacy_priority": 2.8,
+      "comfort_priority": 3.0
+    },
+    "cluster": 0,
+    "segment_name": "Sensitive Loyal Potential",
+    "not_loyal_risk": 9,
+    "loyalty_percent": 91,
+    "repeat_probability": 96,
+    "purchase_intent": 71,
+    "confidence": 45,
+    "risk_level": "LOW",
+    "loyalty_level": "HIGH",
+    "analysis": "มีแนวโน้มภักดีต่อแบรนด์และมีโอกาสกลับมาซื้อซ้ำค่อนข้างสูง",
+    "marketing_strategy": "เน้นสื่อสารความอ่อนโยน ปลอดภัย ไม่มีแอลกอฮอล์ น้ำหอม และพาราเบน พร้อมใช้รีวิวจากผู้ใช้ผิวแพ้ง่าย",
+    "distances": {
+      "cluster_0": 3.3158,
+      "cluster_1": 5.4729,
+      "cluster_2": 5.3241,
+      "cluster_3": 3.5888
+    }
+  },
+  {
+    "created_at": "2026-05-12 21:15:19",
+    "input": {
+      "skin_type": "ผิวแห้ง",
+      "age": "25",
+      "makeup_frequency": "บ่อย",
+      "skin_problems": [
+        "ผิวแห้ง/ลอก/เป็นขุย"
+      ],
+      "budget": "300–500",
+      "used_cleansing": "เคย"
+    },
+    "features": {
+      "age": 25,
+      "skin_oily": 0,
+      "skin_dry": 1,
+      "skin_combo": 0,
+      "skin_sensitive": 0,
+      "makeup_score": 3,
+      "problem_count": 1,
+      "budget_score": 2,
+      "used_cleansing": 1,
+      "safety_priority": 2.8,
+      "efficacy_priority": 3.8,
+      "comfort_priority": 4.0
+    },
+    "cluster": 0,
+    "segment_name": "Sensitive Loyal Potential",
+    "not_loyal_risk": 5,
+    "loyalty_percent": 95,
+    "repeat_probability": 97,
+    "purchase_intent": 83,
+    "confidence": 45,
+    "risk_level": "LOW",
+    "loyalty_level": "HIGH",
+    "analysis": "มีแนวโน้มภักดีต่อแบรนด์และมีโอกาสกลับมาซื้อซ้ำค่อนข้างสูง",
+    "marketing_strategy": "เน้นสื่อสารความอ่อนโยน ปลอดภัย ไม่มีแอลกอฮอล์ น้ำหอม และพาราเบน พร้อมใช้รีวิวจากผู้ใช้ผิวแพ้ง่าย",
+    "distances": {
+      "cluster_0": 3.6472,
+      "cluster_1": 4.7829,
+      "cluster_2": 4.5314,
+      "cluster_3": 4.4631
+    }
+  },
+  {
+    "created_at": "2026-05-12 21:22:34",
+    "input": {
+      "skin_type": "ผิวมัน",
+      "age": "18",
+      "makeup_frequency": "บางครั้ง",
+      "skin_problems": [
+        "รูขุมขนกว้าง",
+        "ผิวมันเยิ้ม",
+        "ผิวหมองคล้ำ"
+      ],
+      "budget": "ต่ำกว่า 300",
+      "used_cleansing": "เคย"
+    },
+    "features": {
+      "age": 18,
+      "skin_oily": 1,
+      "skin_dry": 0,
+      "skin_combo": 0,
+      "skin_sensitive": 0,
+      "makeup_score": 2,
+      "problem_count": 3,
+      "budget_score": 1,
+      "used_cleansing": 1,
+      "safety_priority": 2.8,
+      "efficacy_priority": 3.6999999999999997,
+      "comfort_priority": 3.0
+    },
+    "cluster": 0,
+    "segment_name": "Sensitive Loyal Potential",
+    "not_loyal_risk": 7,
+    "loyalty_percent": 93,
+    "repeat_probability": 97,
+    "purchase_intent": 81,
+    "confidence": 45,
+    "risk_level": "LOW",
+    "loyalty_level": "HIGH",
+    "analysis": "มีแนวโน้มภักดีต่อแบรนด์และมีโอกาสกลับมาซื้อซ้ำค่อนข้างสูง",
+    "marketing_strategy": "เน้นสื่อสารความอ่อนโยน ปลอดภัย ไม่มีแอลกอฮอล์ น้ำหอม และพาราเบน พร้อมใช้รีวิวจากผู้ใช้ผิวแพ้ง่าย",
+    "distances": {
+      "cluster_0": 2.9997,
+      "cluster_1": 4.458,
+      "cluster_2": 4.8289,
+      "cluster_3": 3.7593
+    }
+  },
+  {
+    "created_at": "2026-05-12 21:23:48",
+    "input": {
+      "skin_type": "ผิวธรรมดา",
+      "age": "18",
+      "makeup_frequency": "ไม่ค่อย",
+      "skin_problems": [
+        "ไม่มีปัญหาผิว"
+      ],
+      "budget": "ต่ำกว่า 300",
+      "used_cleansing": "ไม่เคย"
+    },
+    "features": {
+      "age": 18,
+      "skin_oily": 0,
+      "skin_dry": 0,
+      "skin_combo": 0,
+      "skin_sensitive": 0,
+      "makeup_score": 1,
+      "problem_count": 1,
+      "budget_score": 1,
+      "used_cleansing": 1,
+      "safety_priority": 2.8,
+      "efficacy_priority": 2.8,
+      "comfort_priority": 3.0
+    },
+    "cluster": 0,
+    "segment_name": "Sensitive Loyal Potential",
+    "not_loyal_risk": 13,
+    "loyalty_percent": 87,
+    "repeat_probability": 92,
+    "purchase_intent": 71,
+    "confidence": 45,
+    "risk_level": "LOW",
+    "loyalty_level": "HIGH",
+    "analysis": "มีแนวโน้มภักดีต่อแบรนด์และมีโอกาสกลับมาซื้อซ้ำค่อนข้างสูง",
+    "marketing_strategy": "เน้นสื่อสารความอ่อนโยน ปลอดภัย ไม่มีแอลกอฮอล์ น้ำหอม และพาราเบน พร้อมใช้รีวิวจากผู้ใช้ผิวแพ้ง่าย",
+    "distances": {
+      "cluster_0": 2.8151,
+      "cluster_1": 5.9894,
+      "cluster_2": 5.3689,
+      "cluster_3": 3.3305
+    }
+  },
+  {
+    "created_at": "2026-05-12 21:33:55",
+    "input": {
+      "skin_type": "ผิวธรรมดา",
+      "age": "15",
+      "makeup_frequency": "ไม่ค่อย",
+      "skin_problems": [
+        "ไม่มีปัญหาผิว"
+      ],
+      "budget": "ต่ำกว่า 300",
+      "used_cleansing": "ไม่เคย"
+    },
+    "features": {
+      "age": 15,
+      "skin_oily": 0,
+      "skin_dry": 0,
+      "skin_combo": 0,
+      "skin_sensitive": 0,
+      "makeup_score": 1,
+      "problem_count": 1,
+      "budget_score": 1,
+      "used_cleansing": 0,
+      "safety_priority": 2.8,
+      "efficacy_priority": 2.8,
+      "comfort_priority": 3.0
+    },
+    "cluster": 3,
+    "segment_name": "Not Loyal / New Customer",
+    "not_loyal_risk": 81,
+    "loyalty_percent": 19,
+    "repeat_probability": 24,
+    "purchase_intent": 45,
+    "confidence": 45,
+    "risk_level": "HIGH",
+    "loyalty_level": "LOW",
+    "analysis": "ลูกค้าคนนี้ยังไม่เคยใช้ Cleansing Water จึงถูกจัดอยู่ในกลุ่ม Not Loyal / New Customer มีความเสี่ยงสูงที่จะยังไม่ผูกพันกับแบรนด์ ควรใช้แคมเปญทดลองใช้ รีวิวจริง และโปรโมชันแรกซื้อ",
+    "marketing_strategy": "กลุ่มที่ยังไม่เคยใช้หรือยังไม่ผูกพันกับแบรนด์ ควรสร้างการรับรู้ ทดลองใช้ และรีวิว Before/After",
+    "distances": {
+      "cluster_0": 3.7904,
+      "cluster_1": 6.6445,
+      "cluster_2": 5.9882,
+      "cluster_3": 2.8064
+    }
+  },
+  {
+    "created_at": "2026-05-12 21:45:32",
+    "input": {
+      "skin_type": "ผิวแพ้ง่าย",
+      "age": "35",
+      "makeup_frequency": "ไม่ค่อย",
+      "skin_problems": [
+        "สิวผด",
+        "ผิวแพ้ง่าย"
+      ],
+      "budget": "มากกว่า 2,000",
+      "used_cleansing": "เคย"
+    },
+    "features": {
+      "age": 35,
+      "skin_oily": 0,
+      "skin_dry": 0,
+      "skin_combo": 0,
+      "skin_sensitive": 1,
+      "makeup_score": 1,
+      "problem_count": 2,
+      "budget_score": 5,
+      "used_cleansing": 1,
+      "safety_priority": 5,
+      "efficacy_priority": 3.8,
+      "comfort_priority": 3.8
+    },
+    "cluster": 1,
+    "segment_name": "Price Sensitive Switcher",
+    "not_loyal_risk": 5,
+    "loyalty_percent": 95,
+    "repeat_probability": 97,
+    "purchase_intent": 96,
+    "confidence": 45,
+    "risk_level": "LOW",
+    "loyalty_level": "HIGH",
+    "analysis": "ลูกค้ามีแนวโน้มภักดีต่อแบรนด์และมีโอกาสกลับมาซื้อซ้ำค่อนข้างสูง",
+    "marketing_strategy": "ใช้โปรโมชัน ส่วนลด แพ็กคู่ หรือสินค้าทดลอง เพื่อดึงให้กลับมาซื้อซ้ำ",
+    "distances": {
+      "cluster_0": 5.8414,
+      "cluster_1": 4.4243,
+      "cluster_2": 4.4461,
+      "cluster_3": 6.2123
+    }
+  }
+]

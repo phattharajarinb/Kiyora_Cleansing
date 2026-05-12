@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Kiyora Products</title>
+
+<!-- FONT -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(to bottom,#C7ECFF,#bfeaff,#eaf8ff);
+    overflow-x:hidden;
+    color:#124d82;
+    min-height:100vh;
+    position:relative;
+}
+
+/* BACKGROUND */
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+
+    background-image:url('./images/bluesky.jpg');
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+
+    opacity:0.30;
+
+    z-index:-3;
+}
+
+body::after{
+    content:"";
+    position:fixed;
+    top:-150px;
+    left:-150px;
+    width:600px;
+    height:600px;
+    background:radial-gradient(circle,#ffffffb0,transparent 70%);
+    filter:blur(30px);
+    z-index:-2;
+}
+
+.container{
+    width:95%;
+    margin:auto;
+    padding-top:20px;
+}
+
+/* NAVBAR SAME DESIGN */
+
+.navbar{
+    height:100px;
+    padding:0 36px;
+
+    border-radius:32px;
+
+    display:grid;
+    grid-template-columns:260px 1fr 180px;
+    align-items:center;
+
+    background:rgba(255,255,255,0.18);
+    border:1px solid rgba(255,255,255,0.45);
+
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+
+    box-shadow:
+    0 8px 30px rgba(0,120,255,0.14);
+}
+
+.logo{
+    height:100%;
+
+    display:flex;
+    align-items:center;
+
+    font-size:3rem;
+    font-family:'Playfair Display',serif;
+    color:#0f4d84;
+    line-height:1;
+}
+
+.logo span{
+    color:#6ac9ff;
+    margin-left:12px;
+}
+
+.nav-links{
+    height:100%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    list-style:none;
+    gap:48px;
+}
+
+.nav-links li{
+    height:100%;
+    display:flex;
+    align-items:center;
+}
+
+.nav-links a{
+    height:100%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    text-decoration:none;
+
+    color:#13578e;
+    font-size:1.08rem;
+    font-weight:700;
+
+    transition:0.3s;
+}
+
+.nav-links a:hover,
+.nav-links a.active{
+    color:#2f8fff;
+}
+
+.nav-action{
+    height:100%;
+
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+}
+
+.glass-btn{
+    height:52px;
+    min-width:150px;
+
+    padding:0 30px;
+
+    border:none;
+    border-radius:50px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:rgba(255,255,255,0.22);
+    border:1px solid rgba(255,255,255,0.55);
+
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+
+    color:#16639f;
+    font-weight:700;
+    font-size:1rem;
+
+    box-shadow:
+    inset 0 2px 2px rgba(255,255,255,0.45),
+    0 10px 22px rgba(0,120,255,0.12);
+
+    cursor:pointer;
+    transition:0.4s;
+}
+
+.glass-btn:hover{
+    transform:translateY(-4px);
+}
+
+@media(max-width:900px){
+    .navbar{
+        height:auto;
+        padding:24px;
+
+        display:flex;
+        flex-direction:column;
+        gap:22px;
+    }
+
+    .logo{
+        height:auto;
+        justify-content:center;
+    }
+
+    .nav-links{
+        height:auto;
+        flex-wrap:wrap;
+        gap:24px;
+    }
+
+    .nav-links li,
+    .nav-links a{
+        height:auto;
+    }
+
+    .nav-action{
+        height:auto;
+        justify-content:center;
+    }
+}
+
+/* HERO */
+
+.hero{
+    text-align:center;
+    padding:90px 20px 50px;
+}
+
+.small-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+
+    padding:12px 24px;
+
+    border-radius:40px;
+
+    background:rgba(255,255,255,0.18);
+    border:1px solid rgba(255,255,255,0.55);
+
+    backdrop-filter:blur(15px);
+
+    color:#2d82bc;
+
+    margin-bottom:28px;
+}
+
+.hero h1{
+    font-size:5rem;
+    line-height:1.1;
+    font-family:'Playfair Display',serif;
+    color:#114b80;
+}
+
+.hero h1 span{
+    color:#2d82bc;
+    font-style:italic;
+}
+
+.hero p{
+    margin:auto;
+    margin-top:25px;
+
+    width:70%;
+
+    font-size:1.15rem;
+    line-height:1.9;
+
+    color:#3d6f98;
+}
+
+/* PRODUCTS */
+
+.products-section{
+    padding-bottom:80px;
+}
+
+.products-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:28px;
+}
+
+/* CARD */
+
+.product-card{
+    position:relative;
+
+    border-radius:35px;
+
+    background:rgba(255,255,255,0.18);
+    border:1px solid rgba(255,255,255,0.5);
+
+    backdrop-filter:blur(18px);
+
+    padding:30px;
+
+    overflow:hidden;
+
+    transition:0.4s;
+
+    box-shadow:
+    0 10px 30px rgba(0,120,255,0.08);
+}
+
+.product-card:hover{
+    transform:translateY(-12px);
+}
+
+.badge{
+    position:absolute;
+    top:22px;
+    right:22px;
+
+    padding:8px 16px;
+
+    border-radius:30px;
+
+    background:linear-gradient(
+        135deg,
+        #6bd8ff,
+        #2f8fff
+    );
+
+    color:white;
+    font-size:0.8rem;
+    font-weight:600;
+}
+
+.product-image{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    height:260px;
+}
+
+.product-image img{
+    width:180px;
+
+    filter:drop-shadow(0 20px 25px rgba(0,110,255,0.18));
+
+    transition:0.4s;
+}
+
+.product-card:hover .product-image img{
+    transform:scale(1.06) rotate(-2deg);
+}
+
+.product-info h3{
+    font-size:1.5rem;
+    margin-bottom:10px;
+    color:#14558d;
+}
+
+.product-info p{
+    color:#5b87aa;
+    line-height:1.7;
+    margin-bottom:18px;
+    min-height:80px;
+}
+
+.price{
+    font-size:1.4rem;
+    font-weight:700;
+    color:#2f8fff;
+    margin-bottom:18px;
+}
+
+.buy-btn{
+    width:100%;
+    height:54px;
+
+    border:none;
+    border-radius:20px;
+
+    background:rgba(255,255,255,0.25);
+    border:1px solid rgba(255,255,255,0.55);
+
+    backdrop-filter:blur(15px);
+
+    color:#1565a0;
+    font-size:1rem;
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:0.35s;
+}
+
+.buy-btn:hover{
+    transform:translateY(-3px);
+
+    background:linear-gradient(
+        135deg,
+        #6bd8ff,
+        #2f8fff
+    );
+
+    color:white;
+}
+
+/* FOOTER */
+
+.footer{
+    text-align:center;
+    padding:30px 20px 50px;
+
+    color:#5b87aa;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1200px){
+
+    .products-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .hero p{
+        width:100%;
+    }
+}
+
+@media(max-width:768px){
+
+    .navbar{
+        flex-direction:column;
+        height:auto;
+        padding:20px;
+        gap:20px;
+    }
+
+    .nav-links{
+        flex-wrap:wrap;
+        justify-content:center;
+    }
+
+    .hero h1{
+        font-size:3rem;
+    }
+
+    .products-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            kiyora<span> ✦ </span>
+        </div>
+
+        <ul class="nav-links">
+
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#prediction">AI Prediction</a></li>
+            <li><a href="products.html">Products</a></li>
+
+        </ul>
+
+        <button class="glass-btn" onclick="window.location.href='dashboard.html'">
+            Dashboard
+        </button>
+
+    </nav>
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="small-tag">
+            KIYORA CLEAN PRODUCTS
+        </div>
+
+        <h1>
+            Gentle Beauty <br>
+            for <span>Every Skin</span>
+        </h1>
+
+        <p>
+            สำรวจผลิตภัณฑ์ทำความสะอาดผิวจาก Kiyora Clean
+            ที่ออกแบบมาเพื่อมอบสัมผัสสะอาด อ่อนโยน และช่วยฟื้นฟูผิวอย่างล้ำลึก
+            พร้อมตอบโจทย์ทุกสภาพผิวในทุกวัน
+        </p>
+
+    </section>
+
+    <!-- PRODUCTS -->
+
+    <section class="products-section">
+
+        <div class="products-grid">
+
+            <!-- PRODUCT 1 -->
+
+            <div class="product-card">
+
+                <div class="badge">
+                    BEST SELLER
+                </div>
+
+                <div class="product-image">
+                    <img src="./images/Kiyora.png">
+                </div>
+
+                <div class="product-info">
+
+                    <h3>Kiyora Pure Water</h3>
+
+                    <p>
+                        คลีนซิ่งสูตรอ่อนโยนสำหรับผิวแพ้ง่าย
+                        ช่วยทำความสะอาดเมคอัพและสิ่งสกปรกได้อย่างหมดจด
+                    </p>
+
+                    <div class="price">
+                        Stock : 240 Left
+                    </div>
+
+                    <button class="buy-btn">
+                        View Details
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- PRODUCT 2 -->
+
+            <div class="product-card">
+
+                <div class="badge">
+                    NEW
+                </div>
+
+                <div class="product-image">
+                    <img src="images/Kiyora2.png">
+                </div>
+
+                <div class="product-info">
+
+                    <h3>Kiyora Aqua Glow</h3>
+
+                    <p>
+                        เพิ่มความชุ่มชื้นให้ผิว
+                        พร้อมช่วยลดความแห้งกร้านและฟื้นฟูผิวให้ดูสดใส
+                    </p>
+
+                    <div class="price">
+                        Stock : 180 Left
+                    </div>
+
+                    <button class="buy-btn">
+                        View Details
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- PRODUCT 3 -->
+
+            <div class="product-card">
+
+                <div class="badge">
+                    POPULAR
+                </div>
+
+                <div class="product-image">
+                    <img src="./images/Kiyora3.png">
+                </div>
+
+                <div class="product-info">
+
+                    <h3>Kiyora Deep Clean</h3>
+
+                    <p>
+                        สูตรทำความสะอาดล้ำลึก
+                        เหมาะสำหรับผู้ที่แต่งหน้าเป็นประจำและผิวมัน
+                    </p>
+
+                    <div class="price">
+                        Stock : 150 Left
+                    </div>
+
+                    <button class="buy-btn">
+                        View Details
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- PRODUCT 4 -->
+
+            <div class="product-card">
+
+                <div class="badge">
+                    LIMITED
+                </div>
+
+                <div class="product-image">
+                    <img src="./images/Kiyora4.png">
+                </div>
+
+                <div class="product-info">
+
+                    <h3>Kiyora Sakura Mist</h3>
+
+                    <p>
+                        คลีนซิ่งสูตรซากุระจากญี่ปุ่น
+                        มอบสัมผัสสดชื่นและช่วยปลอบประโลมผิว
+                    </p>
+
+                    <div class="price">
+                        Stock : 88 Left
+                    </div>
+
+                    <button class="buy-btn">
+                        View Details
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+        © 2026 Kiyora Clean — Gentle Care for Every Skin
+    </div>
+
+</div>
+
+</body>
+</html>
