@@ -407,5 +407,69 @@
       "cluster_2": 4.4461,
       "cluster_3": 6.2123
     }
+  },
+  {
+    "created_at": "2026-05-13 08:40:11",
+    "input": {
+      "skin_type": "ผิวผสม",
+      "age": "30",
+      "makeup_frequency": "บ่อย",
+      "skin_problems": [
+        "รูขุมขนกว้าง",
+        "ผิวมันเยิ้ม"
+      ],
+      "budget": "500–1000",
+      "used_cleansing": "เคย"
+    },
+    "features": {
+      "is_female": 1.0,
+      "age_ord": 4.0,
+      "income_ord": 3.0,
+      "is_bangkok": 0.0,
+      "skin_oily": 1.0,
+      "skin_dry": 0.0,
+      "skin_combo": 1.0,
+      "skin_sensitive": 0.0,
+      "acne_severity": 0.0,
+      "n_skin_concerns": 2.0,
+      "use_cw": 1.0,
+      "self_directed": 1.0,
+      "doctor_influenced": 0.0,
+      "friend_influenced": 0.0,
+      "influencer_influenced": 1.0,
+      "n_brands_used": 2.0,
+      "score_deep_cleansing": 5.0,
+      "score_acne_friendly": 3.0,
+      "score_sensitive_friendly": 3.0,
+      "score_no_allergen": 3.0,
+      "score_hypoallergenic": 3.0,
+      "score_moisturized": 3.0,
+      "score_low_friction": 3.0,
+      "score_nourishment": 3.0,
+      "score_eye_friendly": 4.0,
+      "score_oil_control": 4.0,
+      "safety_priority": 3.0,
+      "efficacy_priority": 3.75,
+      "comfort_priority": 3.5,
+      "price_sensitive": 0.0,
+      "performance_driven": 1.0
+    },
+    "cluster": 1,
+    "segment_name": "Performance Seeker",
+    "not_loyal_risk": 21,
+    "loyalty_percent": 79,
+    "repeat_probability": 93,
+    "purchase_intent": 90,
+    "confidence": 83,
+    "risk_level": "LOW",
+    "loyalty_level": "HIGH",
+    "analysis": "ลูกค้าให้ความสำคัญกับประสิทธิภาพการทำความสะอาดและผลลัพธ์ เหมาะกับการสื่อสารแบบ Before/After",
+    "marketing_strategy": "เน้น Deep Clean, ลดความมัน, ทำความสะอาดเมคอัพ และคอนเทนต์พิสูจน์ผลลัพธ์จริง",
+    "distances": {
+      "cluster_0": 1.3332,
+      "cluster_1": 0.95,
+      "cluster_2": 0.9539,
+      "cluster_3": 1.0173
+    }
   }
 ]

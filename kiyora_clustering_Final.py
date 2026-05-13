@@ -72,8 +72,38 @@ col_map = {
     headers[28]: "brand_most_used",
 }
 df = df.rename(columns=col_map)
+df.info()
 
 print(f" Loaded {len(df)} rows, {len(df.columns)} columns")
+cols_to_check = [
+    "age",
+    "income",
+    "province",
+    "skin_type",
+    "acne_severity",
+    "influence_source",
+    "switch_factors"
+]
+
+for col in cols_to_check:
+    print("\n" + "="*60)
+    print(f"COLUMN: {col}")
+    print("="*60)
+
+    vals = (
+        df[col]
+        .dropna()
+        .astype(str)
+        .str.strip()
+    )
+
+    vc = vals.value_counts()
+
+    print(f"\nUnique values: {len(vc)}\n")
+
+    for k, v in vc.items():
+        print(f"{k:<80} | count = {v}")
+
 
 
 # 2. FEATURE ENGINEERING
@@ -87,35 +117,62 @@ feat = pd.DataFrame(index=df.index)
 feat["is_female"] = (df["gender"].str.strip() == "หญิง").astype(int)
 
 # Age → ordinal
-age_order = {
-    "น้อยกว่า 18 ปี": 1, "18-22 ปี": 2, "23-28 ปี": 3,
-    "29-35 ปี": 4, "36-45 ปี": 5, "มากกว่า 45 ปี": 6
+age_order = age_order = {
+    "ต่ำกว่า 18 ปี": 1,
+    "18-22 ปี": 2,
+    "23-28 ปี": 3,
+    "29-34 ปี": 4,
+    "35 ปี ขึ้นไป": 5
 }
 feat["age_ord"] = df["age"].map(age_order).fillna(3)
 
 # Income → ordinal
-income_order = {
-    "ต่ำกว่า 15,000 บาท": 1, "15,000 - 19,999 บาท": 2,
-    "20,000 - 24,999 บาท": 3, "25,000 - 29,999 บาท": 4,
-    "30,000 - 34,999 บาท": 5, "35,000 - 39,999 บาท": 6,
-    "40,000 - 49,999 บาท": 7, "50,000 บาทขึ้นไป": 8
+income_order = income_order = {
+    "ต่ำกว่า 10,000 บาท": 1,
+    "10,001 - 14,999 บาท": 2,
+    "15,000 - 19,999 บาท": 3,
+    "20,000 - 24,999 บาท": 4,
+    "25,000 - 29,999 บาท": 5,
+    "30,000 - 34,999 บาท": 6,
+    "35,000 - 39,999 บาท": 7,
+    "40,000 บาท ขึ้นไป": 8
 }
 feat["income_ord"] = df["income"].map(income_order).fillna(3)
 
 # Bangkok vs upcountry
-feat["is_bangkok"] = df["province"].str.contains("กทม|Bangkok", na=False, case=False).astype(int)
+feat["is_bangkok"] = df["province"].str.contains(
+    "กทม|กรุงเทพ|bangkok",
+    na=False,
+    case=False
+).astype(int)
 
 # 2B. Skin Profile
 
 # Skin type → one-hot key types
-for stype, col in [("ผิวมัน", "skin_oily"), ("ผิวแห้ง", "skin_dry"),
-                   ("ผิวผสม", "skin_combo"), ("ผิวแพ้ง่าย", "skin_sensitive")]:
-    feat[col] = df["skin_type"].str.contains(stype, na=False).astype(int)
+skin_map = [
+    ("ผิวมัน", "skin_oily"),
+    ("ผิวแห้ง", "skin_dry"),
+    ("ผิวผสม", "skin_combo"),
+    ("ผิวแพ้ง่าย", "skin_sensitive"),
+    ("ผิวธรรมดา", "skin_normal"),
+    ("ผิวขาดน้ำ", "skin_dehydrated"),
+    ("ไม่แน่ใจ|ไม่ทราบ", "skin_unknown"),
+]
+
+for pattern, col in skin_map:
+    feat[col] = df["skin_type"].str.contains(
+        pattern,
+        na=False,
+        regex=True
+    ).astype(int)
 
 # Acne severity → ordinal
-acne_order = {
-    "ไม่เป็นสิวเลย": 0, "สิวน้อยมาก": 1,
-    "สิวน้อย": 2, "สิวปานกลาง": 3, "สิวมาก": 4
+acne_order = acne_order = {
+    "ไม่มีสิวเลย": 0,
+    "นานๆทีเป็นสิว": 1,
+    "สิวเล็กน้อย": 2,
+    "สิวปานกลาง": 3,
+    "สิวรุนแรง": 4
 }
 def map_acne(val):
     if pd.isna(val):
@@ -138,7 +195,8 @@ feat["use_cw"] = (df["use_cleansing_water"].str.strip() == "ใช้").astype(i
 
 # Main cleansing type → label encode
 le = LabelEncoder()
-feat["cleansing_type_main"] = le.fit_transform(
+feat["cleansing_typ" \
+"e_main"] = le.fit_transform(
     df["cleansing_type_main"].fillna("ไม่ระบุ").str.strip()
 )
 
@@ -150,7 +208,10 @@ feat["doctor_influenced"] = df["influence_source"].str.contains(
 feat["friend_influenced"] = df["influence_source"].str.contains(
     "เพื่อน|Friend", na=False).astype(int)
 feat["influencer_influenced"] = df["influence_source"].str.contains(
-    "influencer|ยูทูบ|รีวิว|review", na=False, case=False).astype(int)
+    "บิวตี้บลอกเกอร์|รีวิว|influencer|review|ยูทูบ",
+    na=False,
+    case=False
+).astype(int)
 
 # Number of brands used
 feat["n_brands_used"] = df["brands_used"].apply(
@@ -372,7 +433,7 @@ if K == 1:
 fig.suptitle("Brand Used (Most Frequent) per Cluster", fontsize=13, fontweight="bold")
 for c, ax in enumerate(axes):
     mask = df["cluster"] == c
-    counts = df.loc[mask, "brand_most_used"].value_counts().head(6)
+    counts = df.loc[mask, "brand_most_used"].value_counts()
     counts.plot(kind="bar", ax=ax, color=colors[c], edgecolor="white")
     ax.set_title(f"Cluster {c}", fontweight="bold")
     ax.set_ylabel("Count")
@@ -538,3 +599,188 @@ print(" cluster_heatmap.png")
 print(" cluster_radar.png")
 print(" cluster_brands.png")
 print("\n Pipeline complete!")
+
+print("\n===== UNIQUE BRAND VALUES =====")
+
+brands_raw = (
+    df["brand_most_used"]
+    .dropna()
+    .astype(str)
+    .str.strip()
+)
+
+# แสดง unique ทั้งหมด
+unique_brands = sorted(brands_raw.unique())
+
+print(f"\nTotal unique brands: {len(unique_brands)}\n")
+
+for b in unique_brands:
+    count = (brands_raw == b).sum()
+    print(f"{b:<30} | count = {count}")
+
+# ===============================
+# BRAND RANKING: BEFORE vs AFTER UNSUPERVISED
+# ===============================
+
+print("STEP: BRAND RANKING BEFORE vs AFTER CLUSTERING")
+
+# 1) Clean brand names
+df["brand_most_used_clean"] = (
+    df["brand_most_used"]
+    .astype(str)
+    .str.strip()
+    .str.lower()
+)
+
+df["brand_most_used_clean"] = df["brand_most_used_clean"].replace({
+    "hikari": "Hikari",
+    "glow in skin": "Glow in Skin",
+})
+
+mask = ~df["brand_most_used_clean"].isin(["Hikari", "Glow in Skin"])
+df.loc[mask, "brand_most_used_clean"] = (
+    df.loc[mask, "brand_most_used_clean"]
+    .str.title()
+)
+
+# 2) Group rare brands as Other
+brand_counts = df["brand_most_used_clean"].value_counts()
+rare_brands = brand_counts[brand_counts < 3].index
+
+df["brand_grouped"] = df["brand_most_used_clean"].replace(
+    rare_brands,
+    "Other"
+)
+
+# ===============================
+# BEFORE: Overall brand ranking
+# ===============================
+
+before_rank = (
+    df["brand_grouped"]
+    .value_counts()
+    .reset_index()
+)
+
+before_rank.columns = ["brand", "count"]
+before_rank["percent"] = before_rank["count"] / before_rank["count"].sum() * 100
+before_rank["rank"] = before_rank["count"].rank(method="first", ascending=False).astype(int)
+
+print("\nOverall Brand Ranking BEFORE clustering:")
+print(before_rank.to_string(index=False))
+
+plt.figure(figsize=(10, 5))
+plt.bar(before_rank["brand"], before_rank["count"])
+plt.title("Brand Ranking BEFORE Unsupervised Clustering", fontsize=13, fontweight="bold")
+plt.xlabel("Brand")
+plt.ylabel("Number of Respondents")
+plt.xticks(rotation=30, ha="right")
+plt.grid(axis="y", alpha=0.3)
+plt.tight_layout()
+plt.savefig("brand_ranking_before.png", bbox_inches="tight")
+plt.close()
+
+# ===============================
+# AFTER: Brand ranking by cluster
+# ===============================
+
+after_rank = (
+    df.groupby(["cluster", "brand_grouped"])
+    .size()
+    .reset_index(name="count")
+)
+
+after_rank["percent_in_cluster"] = (
+    after_rank["count"]
+    / after_rank.groupby("cluster")["count"].transform("sum")
+    * 100
+)
+
+after_rank["rank_in_cluster"] = (
+    after_rank.groupby("cluster")["count"]
+    .rank(method="first", ascending=False)
+    .astype(int)
+)
+
+after_rank = after_rank.sort_values(["cluster", "rank_in_cluster"])
+
+print("\nBrand Ranking AFTER clustering:")
+print(after_rank.to_string(index=False))
+
+# Plot top brands per cluster
+top_n = 5
+after_top = after_rank[after_rank["rank_in_cluster"] <= top_n]
+
+fig, axes = plt.subplots(1, K, figsize=(5*K, 5))
+if K == 1:
+    axes = [axes]
+
+fig.suptitle("Brand Used (Most Frequent) per Cluster",
+             fontsize=13, fontweight="bold")
+
+for c, ax in enumerate(axes):
+    mask = df["cluster"] == c
+
+    # TOP 6 ONLY
+    counts = (
+        df.loc[mask, "brand_most_used"]
+        .value_counts()
+        .head(6)
+    )
+
+    counts.plot(
+        kind="bar",
+        ax=ax,
+        color=colors[c],
+        edgecolor="white"
+    )
+
+    ax.set_title(f"Cluster {c}", fontweight="bold")
+    ax.set_ylabel("Count")
+    ax.tick_params(axis="x", rotation=30, labelsize=8)
+    ax.grid(True, axis="y", alpha=0.3)
+
+plt.tight_layout()
+plt.savefig("cluster_brands_top6.png", bbox_inches="tight")
+plt.close()
+
+# ===============================
+# OPTIONAL: Heatmap brand share by cluster
+# ===============================
+
+brand_cluster_pct = pd.crosstab(
+    df["brand_grouped"],
+    df["cluster"],
+    normalize="columns"
+) * 100
+
+plt.figure(figsize=(max(8, K*2), 8))
+sns.heatmap(
+    brand_cluster_pct,
+    annot=True,
+    fmt=".1f",
+    cmap="Blues",
+    linewidths=0.5,
+    cbar_kws={"label": "% within cluster"}
+)
+plt.title("Brand Share by Cluster (%)", fontsize=13, fontweight="bold")
+plt.xlabel("Cluster")
+plt.ylabel("Brand")
+plt.tight_layout()
+plt.savefig("brand_share_heatmap_by_cluster.png", bbox_inches="tight")
+plt.close()
+
+# ===============================
+# EXPORT
+# ===============================
+
+before_rank.to_excel("brand_ranking_before.xlsx", index=False)
+after_rank.to_excel("brand_ranking_after_by_cluster.xlsx", index=False)
+brand_cluster_pct.to_excel("brand_share_heatmap_by_cluster.xlsx")
+
+print("\nSaved files:")
+print(" brand_ranking_before.png")
+print(" brand_ranking_after_by_cluster.png")
+print(" brand_share_heatmap_by_cluster.png")
+print(" brand_ranking_before.xlsx")
+print(" brand_ranking_after_by_cluster.xlsx")

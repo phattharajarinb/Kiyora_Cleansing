@@ -1,110 +1,169 @@
+"""
+Runtime backend for Kiyora AI Prediction.
+
+This file is designed for Flask usage. It does NOT retrain the notebook/script
+pipeline on every import. It exposes the 3 functions expected by app.py:
+
+- predict_customer(data)
+- get_dashboard_summary()
+- get_prediction_history()
+
+The original clustering script used 31 engineered features for K-Means. This
+runtime module mirrors those feature names and maps the web form payload into a
+compact customer-segmentation result that the existing HTML dashboard can read.
+"""
+
+from __future__ import annotations
+
 import json
+import math
 import os
+from collections import Counter, defaultdict
 from datetime import datetime
+from typing import Any, Dict, List, Tuple
 
-import numpy as np
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-
-
-HISTORY_FILE = "predictions.json"
+PREDICTIONS_FILE = "predictions.json"
 
 FEATURES = [
-    "age",
-    "skin_oily",
-    "skin_dry",
-    "skin_combo",
-    "skin_sensitive",
-    "makeup_score",
-    "problem_count",
-    "budget_score",
-    "used_cleansing",
-    "safety_priority",
-    "efficacy_priority",
-    "comfort_priority"
+    "is_female", "age_ord", "income_ord", "is_bangkok",
+    "skin_oily", "skin_dry", "skin_combo", "skin_sensitive",
+    "acne_severity", "n_skin_concerns",
+    "use_cw", "self_directed", "doctor_influenced",
+    "friend_influenced", "influencer_influenced", "n_brands_used",
+    "score_deep_cleansing", "score_acne_friendly", "score_sensitive_friendly",
+    "score_no_allergen", "score_hypoallergenic", "score_moisturized",
+    "score_low_friction", "score_nourishment", "score_eye_friendly",
+    "score_oil_control",
+    "safety_priority", "efficacy_priority", "comfort_priority",
+    "price_sensitive", "performance_driven",
 ]
 
-SEGMENT_NAMES = {
-    0: "Sensitive Loyal Potential",
-    1: "Price Sensitive Switcher",
-    2: "Performance Driven Buyer",
-    3: "Not Loyal / New Customer"
+SEGMENTS = {
+    0: {
+        "name": "Sensitive Loyal Potential",
+        "analysis": "ลูกค้ามีแนวโน้มภักดีต่อแบรนด์ เหมาะกับการสื่อสารเรื่องความอ่อนโยน ปลอดภัย และเหมาะกับผิวแพ้ง่าย",
+        "marketing_strategy": "เน้นรีวิวจากผู้ใช้ผิวแพ้ง่าย จุดขาย 0% Alcohol / Fragrance / Paraben และแคมเปญซื้อซ้ำ",
+    },
+    1: {
+        "name": "Performance Seeker",
+        "analysis": "ลูกค้าให้ความสำคัญกับประสิทธิภาพการทำความสะอาดและผลลัพธ์ เหมาะกับการสื่อสารแบบ Before/After",
+        "marketing_strategy": "เน้น Deep Clean, ลดความมัน, ทำความสะอาดเมคอัพ และคอนเทนต์พิสูจน์ผลลัพธ์จริง",
+    },
+    2: {
+        "name": "Price Sensitive Switcher",
+        "analysis": "ลูกค้ามีโอกาสเปลี่ยนแบรนด์ตามราคาและโปรโมชัน จึงต้องใช้ข้อเสนอที่ชัดเจนเพื่อกระตุ้นการซื้อ",
+        "marketing_strategy": "ใช้โปรโมชันทดลองใช้ Bundle Set ส่วนลดครั้งแรก และแคมเปญคุ้มค่ากว่าราคา",
+    },
+    3: {
+        "name": "Not Loyal / New Customer",
+        "analysis": "ลูกค้ายังไม่คุ้นเคยหรือยังไม่ผูกพันกับ Cleansing Water จึงมีความเสี่ยงไม่ Loyal สูง",
+        "marketing_strategy": "สร้าง Awareness ด้วยรีวิวจริง Sampling Before/After และโปรโมชันแรกซื้อเพื่อให้ทดลองใช้",
+    },
 }
 
-SEGMENT_STRATEGY = {
-    0: "เน้นความอ่อนโยน ปลอดภัย ไม่มีแอลกอฮอล์ น้ำหอม และพาราเบน พร้อมรีวิวจากผู้ใช้ผิวแพ้ง่าย",
-    1: "ใช้โปรโมชัน ส่วนลด แพ็กคู่ หรือสินค้าทดลอง เพื่อดึงให้กลับมาซื้อซ้ำ",
-    2: "เน้นประสิทธิภาพการทำความสะอาด ลดสิว ลดความมัน และผลลัพธ์หลังใช้จริง",
-    3: "กลุ่มที่ยังไม่เคยใช้หรือยังไม่ผูกพันกับแบรนด์ ควรสร้างการรับรู้ ทดลองใช้ และรีวิว Before/After"
+# Prototype vectors built from the same 31-feature structure as the original
+# clustering script. They are used as stable runtime centroids when the training
+# dataset / serialized sklearn model is not bundled with the web app.
+PROTOTYPES: Dict[int, Dict[str, float]] = {
+    0: {
+        "is_female": 1, "age_ord": 3, "income_ord": 4, "is_bangkok": 1,
+        "skin_oily": 0, "skin_dry": 0, "skin_combo": 0, "skin_sensitive": 1,
+        "acne_severity": 2, "n_skin_concerns": 3, "use_cw": 1,
+        "self_directed": 1, "doctor_influenced": 1, "friend_influenced": 0,
+        "influencer_influenced": 0, "n_brands_used": 2,
+        "score_deep_cleansing": 4, "score_acne_friendly": 5,
+        "score_sensitive_friendly": 5, "score_no_allergen": 5,
+        "score_hypoallergenic": 5, "score_moisturized": 4,
+        "score_low_friction": 4, "score_nourishment": 4,
+        "score_eye_friendly": 4, "score_oil_control": 3,
+        "safety_priority": 5, "efficacy_priority": 3.75,
+        "comfort_priority": 4, "price_sensitive": 0, "performance_driven": 1,
+    },
+    1: {
+        "is_female": 1, "age_ord": 3, "income_ord": 4, "is_bangkok": 0,
+        "skin_oily": 1, "skin_dry": 0, "skin_combo": 1, "skin_sensitive": 0,
+        "acne_severity": 3, "n_skin_concerns": 3, "use_cw": 1,
+        "self_directed": 1, "doctor_influenced": 0, "friend_influenced": 0,
+        "influencer_influenced": 1, "n_brands_used": 3,
+        "score_deep_cleansing": 5, "score_acne_friendly": 4,
+        "score_sensitive_friendly": 3, "score_no_allergen": 3,
+        "score_hypoallergenic": 3, "score_moisturized": 3,
+        "score_low_friction": 3, "score_nourishment": 3,
+        "score_eye_friendly": 3, "score_oil_control": 5,
+        "safety_priority": 3.25, "efficacy_priority": 4,
+        "comfort_priority": 3, "price_sensitive": 0, "performance_driven": 1,
+    },
+    2: {
+        "is_female": 1, "age_ord": 2, "income_ord": 2, "is_bangkok": 0,
+        "skin_oily": 0, "skin_dry": 0, "skin_combo": 1, "skin_sensitive": 0,
+        "acne_severity": 1, "n_skin_concerns": 2, "use_cw": 1,
+        "self_directed": 0, "doctor_influenced": 0, "friend_influenced": 1,
+        "influencer_influenced": 1, "n_brands_used": 3,
+        "score_deep_cleansing": 3, "score_acne_friendly": 3,
+        "score_sensitive_friendly": 3, "score_no_allergen": 3,
+        "score_hypoallergenic": 3, "score_moisturized": 3,
+        "score_low_friction": 3, "score_nourishment": 3,
+        "score_eye_friendly": 3, "score_oil_control": 3,
+        "safety_priority": 3, "efficacy_priority": 3,
+        "comfort_priority": 3, "price_sensitive": 1, "performance_driven": 0,
+    },
+    3: {
+        "is_female": 1, "age_ord": 2, "income_ord": 2, "is_bangkok": 0,
+        "skin_oily": 0, "skin_dry": 0, "skin_combo": 0, "skin_sensitive": 0,
+        "acne_severity": 0, "n_skin_concerns": 1, "use_cw": 0,
+        "self_directed": 0, "doctor_influenced": 0, "friend_influenced": 1,
+        "influencer_influenced": 1, "n_brands_used": 1,
+        "score_deep_cleansing": 3, "score_acne_friendly": 3,
+        "score_sensitive_friendly": 3, "score_no_allergen": 3,
+        "score_hypoallergenic": 3, "score_moisturized": 3,
+        "score_low_friction": 3, "score_nourishment": 3,
+        "score_eye_friendly": 3, "score_oil_control": 3,
+        "safety_priority": 3, "efficacy_priority": 3,
+        "comfort_priority": 3, "price_sensitive": 1, "performance_driven": 0,
+    },
 }
 
 
-def build_training_data():
-    rng = np.random.default_rng(42)
-    data = []
-
-    for _ in range(60):
-        data.append([
-            rng.integers(18, 31), rng.integers(0, 2), rng.integers(0, 2),
-            rng.integers(0, 2), 1, rng.integers(1, 3),
-            rng.integers(2, 5), rng.integers(2, 4), 1,
-            rng.uniform(4.2, 5.0), rng.uniform(3.3, 4.4), rng.uniform(3.8, 5.0)
-        ])
-
-    for _ in range(55):
-        data.append([
-            rng.integers(18, 28), rng.integers(0, 2), rng.integers(0, 2),
-            rng.integers(0, 2), rng.integers(0, 2), rng.integers(0, 2),
-            rng.integers(1, 4), rng.integers(1, 3), rng.integers(0, 2),
-            rng.uniform(2.5, 4.0), rng.uniform(2.8, 4.0), rng.uniform(2.5, 4.0)
-        ])
-
-    for _ in range(60):
-        data.append([
-            rng.integers(20, 36), 1, 0, rng.integers(0, 2),
-            rng.integers(0, 2), rng.integers(2, 4),
-            rng.integers(2, 6), rng.integers(3, 5), 1,
-            rng.uniform(3.3, 4.5), rng.uniform(4.3, 5.0), rng.uniform(3.0, 4.3)
-        ])
-
-    for _ in range(45):
-        data.append([
-            rng.integers(16, 25), rng.integers(0, 2), rng.integers(0, 2),
-            rng.integers(0, 2), rng.integers(0, 2), rng.integers(0, 2),
-            rng.integers(0, 3), rng.integers(1, 4), 0,
-            rng.uniform(2.5, 4.0), rng.uniform(2.5, 4.0), rng.uniform(2.5, 4.0)
-        ])
-
-    return np.array(data, dtype=float)
+def _first(data: Dict[str, Any], *keys: str, default: Any = None) -> Any:
+    for key in keys:
+        if key in data and data[key] not in (None, ""):
+            return data[key]
+    return default
 
 
-X_TRAIN = build_training_data()
-SCALER = StandardScaler()
-X_SCALED = SCALER.fit_transform(X_TRAIN)
-
-KMEANS = KMeans(n_clusters=4, random_state=42, n_init=20)
-KMEANS.fit(X_SCALED)
-
-
-def safe_int(value, default=0):
+def _age_to_ord(age_value: Any) -> int:
     try:
-        return int(value)
-    except Exception:
-        return default
+        age = int(age_value)
+    except (TypeError, ValueError):
+        age = 25
+    if age < 18:
+        return 1
+    if age <= 22:
+        return 2
+    if age <= 28:
+        return 3
+    if age <= 34:
+        return 4
+    return 5
 
 
-def encode_skin_type(value):
-    text = str(value)
-    return {
-        "skin_oily": 1 if "มัน" in text else 0,
-        "skin_dry": 1 if "แห้ง" in text else 0,
-        "skin_combo": 1 if "ผสม" in text else 0,
-        "skin_sensitive": 1 if "แพ้" in text or "แพ้ง่าย" in text else 0,
-    }
+def _income_to_ord(budget_value: Any) -> int:
+    text = str(budget_value or "").replace(",", "")
+    if "ต่ำกว่า" in text or "300" in text and "500" not in text:
+        return 1
+    if "300" in text and "500" in text:
+        return 2
+    if "500" in text and "1000" in text:
+        return 3
+    if "1000" in text and "2000" in text:
+        return 4
+    if "มากกว่า" in text or "2000" in text:
+        return 5
+    return 3
 
 
-def encode_makeup(value):
-    text = str(value)
+def _makeup_score(value: Any) -> int:
+    text = str(value or "")
     if "บ่อย" in text:
         return 3
     if "บางครั้ง" in text:
@@ -112,310 +171,239 @@ def encode_makeup(value):
     return 1
 
 
-def encode_budget(value):
-    text = str(value)
-    if "ต่ำกว่า" in text:
-        return 1
-    if "300" in text:
-        return 2
-    if "500" in text:
-        return 3
-    if "1000" in text or "1,000" in text:
-        return 4
-    if "มากกว่า" in text or "2,000" in text:
-        return 5
-    return 3
+def _safe_list(value: Any) -> List[str]:
+    if isinstance(value, list):
+        return [str(v) for v in value if str(v).strip()]
+    if value in (None, ""):
+        return []
+    return [str(value)]
 
 
-def encode_used(value):
-    text = str(value).strip()
-    if text == "ไม่เคย":
-        return 0
-    return 1
+def build_features(data: Dict[str, Any]) -> Dict[str, float]:
+    """Map the HTML form payload into the 31 runtime features."""
+    skin_type = str(_first(data, "skin_type", "skinType", default=""))
+    problems = _safe_list(_first(data, "skin_problems", "skinProblems", default=[]))
+    makeup_frequency = _first(data, "makeup_frequency", "makeupFrequency", default="บางครั้ง")
+    budget = _first(data, "budget", default="500–1000")
+    used = str(_first(data, "used_cleansing", "usedBefore", default="ไม่เคย"))
+    age = _first(data, "age", default=25)
 
+    n_problems = 0 if "ไม่มีปัญหาผิว" in problems else len(problems)
+    acne_severity = 0
+    if any("สิว" in p for p in problems):
+        acne_severity = min(4, 1 + sum(1 for p in problems if "สิว" in p))
 
-def calculate_priorities(skin_type, problems, makeup, budget):
-    problems_text = " ".join(problems)
+    skin_oily = int("ผิวมัน" in skin_type or any("ผิวมัน" in p for p in problems))
+    skin_dry = int("ผิวแห้ง" in skin_type or any("แห้ง" in p or "ลอก" in p for p in problems))
+    skin_combo = int("ผิวผสม" in skin_type)
+    skin_sensitive = int("ผิวแพ้ง่าย" in skin_type or any("แพ้ง่าย" in p for p in problems))
 
-    safety = 3.0
-    efficacy = 3.0
-    comfort = 3.0
+    use_cw = int("เคย" in used or "ใช้" in used)
+    makeup = _makeup_score(makeup_frequency)
+    income_ord = _income_to_ord(budget)
 
-    if "แพ้ง่าย" in skin_type or "ผิวแพ้ง่าย" in problems_text:
-        safety += 1.4
-        comfort += 0.8
+    score_deep = 3 + int(makeup >= 2) + int(makeup >= 3)
+    score_oil = 3 + skin_oily
+    score_moist = 3 + skin_dry
+    score_acne = 3 + int(acne_severity >= 2)
+    score_sensitive = 3 + skin_sensitive
+    score_no_allergen = 3 + skin_sensitive
+    score_hypo = 3 + skin_sensitive
+    score_low_friction = 3 + skin_sensitive
+    score_eye = 3 + int(makeup >= 2)
+    score_nourishment = 3 + skin_dry
 
-    if "สิว" in problems_text:
-        safety += 0.8
-        efficacy += 0.8
+    safety_priority = (score_acne + score_sensitive + score_no_allergen + score_hypo) / 4
+    efficacy_priority = (score_deep + score_moist + score_nourishment + score_oil) / 4
+    comfort_priority = (score_low_friction + score_eye) / 2
 
-    if "รูขุมขน" in problems_text or "มัน" in problems_text:
-        efficacy += 0.9
+    price_sensitive = int(income_ord <= 2)
+    performance_driven = int(score_deep >= 4 or acne_severity >= 2 or skin_oily == 1)
 
-    if "แห้ง" in problems_text or "ลอก" in problems_text:
-        comfort += 1.0
-
-    if makeup == 3:
-        efficacy += 1.0
-
-    if budget <= 2:
-        safety -= 0.2
-        efficacy -= 0.2
-
-    return (
-        min(max(safety, 1), 5),
-        min(max(efficacy, 1), 5),
-        min(max(comfort, 1), 5)
-    )
-
-
-def make_feature_vector(data):
-    skin_type = data.get("skin_type", "")
-    age = safe_int(data.get("age"), 21)
-    makeup = encode_makeup(data.get("makeup_frequency", "บางครั้ง"))
-    problems = data.get("skin_problems", [])
-    budget = encode_budget(data.get("budget", "300–500"))
-    used = encode_used(data.get("used_cleansing", "เคย"))
-
-    skin = encode_skin_type(skin_type)
-    safety, efficacy, comfort = calculate_priorities(skin_type, problems, makeup, budget)
-
-    row = {
-        "age": age,
-        "skin_oily": skin["skin_oily"],
-        "skin_dry": skin["skin_dry"],
-        "skin_combo": skin["skin_combo"],
-        "skin_sensitive": skin["skin_sensitive"],
-        "makeup_score": makeup,
-        "problem_count": len(problems),
-        "budget_score": budget,
-        "used_cleansing": used,
-        "safety_priority": safety,
-        "efficacy_priority": efficacy,
-        "comfort_priority": comfort,
+    features = {
+        "is_female": 1,
+        "age_ord": _age_to_ord(age),
+        "income_ord": income_ord,
+        "is_bangkok": 0,
+        "skin_oily": skin_oily,
+        "skin_dry": skin_dry,
+        "skin_combo": skin_combo,
+        "skin_sensitive": skin_sensitive,
+        "acne_severity": acne_severity,
+        "n_skin_concerns": n_problems,
+        "use_cw": use_cw,
+        "self_directed": 1,
+        "doctor_influenced": int(skin_sensitive or acne_severity >= 3),
+        "friend_influenced": 0,
+        "influencer_influenced": int(makeup >= 2),
+        "n_brands_used": 2 if use_cw else 1,
+        "score_deep_cleansing": min(score_deep, 5),
+        "score_acne_friendly": min(score_acne, 5),
+        "score_sensitive_friendly": min(score_sensitive, 5),
+        "score_no_allergen": min(score_no_allergen, 5),
+        "score_hypoallergenic": min(score_hypo, 5),
+        "score_moisturized": min(score_moist, 5),
+        "score_low_friction": min(score_low_friction, 5),
+        "score_nourishment": min(score_nourishment, 5),
+        "score_eye_friendly": min(score_eye, 5),
+        "score_oil_control": min(score_oil, 5),
+        "safety_priority": round(safety_priority, 2),
+        "efficacy_priority": round(efficacy_priority, 2),
+        "comfort_priority": round(comfort_priority, 2),
+        "price_sensitive": price_sensitive,
+        "performance_driven": performance_driven,
     }
+    return {feature: float(features.get(feature, 0)) for feature in FEATURES}
 
-    return np.array([[row[f] for f in FEATURES]], dtype=float), row
+
+def _distance(a: Dict[str, float], b: Dict[str, float]) -> float:
+    # Normalized Euclidean distance to avoid 1-5 scores dominating too much.
+    total = 0.0
+    for key in FEATURES:
+        denom = 5.0 if key in {"age_ord", "income_ord"} or key.startswith("score_") or key.endswith("priority") else 4.0
+        total += ((a.get(key, 0.0) - b.get(key, 0.0)) / denom) ** 2
+    return math.sqrt(total)
 
 
-def score_customer(feature_row, cluster_id):
-    age = feature_row["age"]
-    budget = feature_row["budget_score"]
-    used = feature_row["used_cleansing"]
-    safety = feature_row["safety_priority"]
-    efficacy = feature_row["efficacy_priority"]
-    comfort = feature_row["comfort_priority"]
-    problem_count = feature_row["problem_count"]
-    makeup = feature_row["makeup_score"]
+def predict_cluster(features: Dict[str, float]) -> Tuple[int, Dict[str, float]]:
+    distances = {cid: _distance(features, proto) for cid, proto in PROTOTYPES.items()}
+    cluster_id = min(distances, key=distances.get)
+    return int(cluster_id), {f"cluster_{cid}": round(dist, 4) for cid, dist in distances.items()}
 
-    loyalty = 40
 
-    if used == 1:
-        loyalty += 15
+def _calculate_scores(features: Dict[str, float], cluster_id: int, distances: Dict[str, float]) -> Dict[str, int | str]:
+    use_cw = features["use_cw"]
+    safety = features["safety_priority"]
+    efficacy = features["efficacy_priority"]
+    comfort = features["comfort_priority"]
+    price_sensitive = features["price_sensitive"]
+    n_concerns = features["n_skin_concerns"]
+
+    if cluster_id == 3:
+        risk = 76 + int(price_sensitive * 8) + int(n_concerns <= 1) * 4
+    elif cluster_id == 2:
+        risk = 48 + int(price_sensitive * 18) - int(use_cw * 8)
+    elif cluster_id == 1:
+        risk = 28 + int(price_sensitive * 8) - int(efficacy * 2)
     else:
-        loyalty -= 45
+        risk = 22 - int((safety - 3) * 7) - int(use_cw * 6)
 
-    loyalty += budget * 4
-    loyalty += safety * 5
-    loyalty += comfort * 3
-    loyalty += efficacy * 2
+    risk = max(5, min(95, risk))
+    loyalty = max(5, min(98, 100 - risk))
+    repeat = max(5, min(98, loyalty + int(use_cw * 7) + int(comfort * 2) - int(price_sensitive * 5)))
+    purchase = max(5, min(98, int((loyalty * 0.45) + (repeat * 0.35) + (efficacy * 6))))
 
-    if problem_count >= 3:
-        loyalty += 4
-
-    if makeup >= 3:
-        loyalty += 5
-
-    if age < 18:
-        loyalty -= 8
-
-    if cluster_id == 1:
-        loyalty -= 12
-
-    loyalty = int(min(max(loyalty, 5), 95))
-
-    not_loyal_risk = 100 - loyalty
-
-    if used == 0:
-        not_loyal_risk = max(not_loyal_risk, 80)
-        loyalty = min(loyalty, 20)
-
-    not_loyal_risk = int(min(max(not_loyal_risk, 0), 100))
-
-    repeat_probability = int(min(max(loyalty + 5, 5), 97))
-    purchase_intent = int(min(max((efficacy * 12) + (safety * 8) + (used * 15), 10), 96))
-
-    if used == 0:
-        repeat_probability = min(repeat_probability, 25)
-        purchase_intent = min(purchase_intent, 45)
-
-    return loyalty, not_loyal_risk, repeat_probability, purchase_intent
-
-
-def get_level(percent):
-    if percent >= 75:
-        return "HIGH"
-    if percent >= 45:
-        return "MEDIUM"
-    return "LOW"
-
-
-def load_history():
-    if not os.path.exists(HISTORY_FILE):
-        return []
-
-    try:
-        with open(HISTORY_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return []
-
-
-def save_history(item):
-    history = load_history()
-    history.append(item)
-
-    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
-        json.dump(history, f, ensure_ascii=False, indent=2)
-
-
-def predict_customer(data):
-    X, feature_row = make_feature_vector(data)
-    X_scaled = SCALER.transform(X)
-
-    used = feature_row["used_cleansing"]
-
-    cluster_id = int(KMEANS.predict(X_scaled)[0])
-
-    if used == 0:
-        cluster_id = 3
-
-    distances = np.linalg.norm(X_scaled - KMEANS.cluster_centers_, axis=1)
-
-    confidence = 1 / (1 + float(np.min(distances)))
-    confidence_percent = int(min(max(confidence * 100, 45), 95))
-
-    loyalty, not_loyal_risk, repeat_probability, purchase_intent = score_customer(feature_row, cluster_id)
-
-    segment_name = SEGMENT_NAMES.get(cluster_id, "Customer Segment")
-    strategy = SEGMENT_STRATEGY.get(cluster_id, "ใช้กลยุทธ์การตลาดเฉพาะกลุ่ม")
-
-    if used == 0:
+    if risk >= 70:
         risk_level = "HIGH"
-        analysis = "ลูกค้าคนนี้ยังไม่เคยใช้ Cleansing Water จึงถูกจัดอยู่ในกลุ่ม Not Loyal / New Customer มีความเสี่ยงสูงที่จะยังไม่ผูกพันกับแบรนด์ ควรใช้แคมเปญทดลองใช้ รีวิวจริง และโปรโมชันแรกซื้อ"
-    elif not_loyal_risk >= 60:
-        risk_level = "HIGH"
-        analysis = "ลูกค้ามีความเสี่ยงที่จะไม่ภักดีต่อแบรนด์ ควรใช้โปรโมชันและรีวิวจากผู้ใช้จริงเพื่อกระตุ้นการตัดสินใจ"
-    elif not_loyal_risk >= 35:
+    elif risk >= 40:
         risk_level = "MEDIUM"
-        analysis = "ลูกค้ามีความเสี่ยงระดับกลาง ควรสื่อสารจุดเด่นของสินค้าให้ตรงกับปัญหาผิว"
     else:
         risk_level = "LOW"
-        analysis = "ลูกค้ามีแนวโน้มภักดีต่อแบรนด์และมีโอกาสกลับมาซื้อซ้ำค่อนข้างสูง"
 
-    result = {
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "input": data,
-        "features": feature_row,
-        "cluster": cluster_id,
-        "segment_name": segment_name,
-        "not_loyal_risk": not_loyal_risk,
-        "loyalty_percent": loyalty,
-        "repeat_probability": repeat_probability,
-        "purchase_intent": purchase_intent,
-        "confidence": confidence_percent,
+    loyalty_level = "HIGH" if loyalty >= 70 else "MEDIUM" if loyalty >= 40 else "LOW"
+
+    closest = min(distances.values()) if distances else 0
+    confidence = max(45, min(95, int(95 - closest * 12)))
+
+    return {
+        "not_loyal_risk": int(risk),
+        "loyalty_percent": int(loyalty),
+        "repeat_probability": int(repeat),
+        "purchase_intent": int(purchase),
+        "confidence": int(confidence),
         "risk_level": risk_level,
-        "loyalty_level": get_level(loyalty),
-        "analysis": analysis,
-        "marketing_strategy": strategy,
-        "distances": {
-            f"cluster_{i}": round(float(d), 4)
-            for i, d in enumerate(distances)
-        }
+        "loyalty_level": loyalty_level,
     }
 
-    save_history(result)
+
+def _load_history() -> List[Dict[str, Any]]:
+    if not os.path.exists(PREDICTIONS_FILE):
+        return []
+    try:
+        with open(PREDICTIONS_FILE, "r", encoding="utf-8") as file:
+            data = json.load(file)
+        return data if isinstance(data, list) else []
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+def _save_history(history: List[Dict[str, Any]]) -> None:
+    with open(PREDICTIONS_FILE, "w", encoding="utf-8") as file:
+        json.dump(history, file, ensure_ascii=False, indent=2)
+
+
+def predict_customer(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Main Flask prediction entry point."""
+    data = data or {}
+    features = build_features(data)
+    cluster_id, distances = predict_cluster(features)
+    segment = SEGMENTS[cluster_id]
+    scores = _calculate_scores(features, cluster_id, distances)
+
+    result: Dict[str, Any] = {
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "input": data,
+        "features": features,
+        "cluster": cluster_id,
+        "segment_name": segment["name"],
+        **scores,
+        "analysis": segment["analysis"],
+        "marketing_strategy": segment["marketing_strategy"],
+        "distances": distances,
+    }
+
+    history = _load_history()
+    history.append(result)
+    _save_history(history)
     return result
 
 
-def get_prediction_history():
-    return load_history()
+def get_prediction_history() -> List[Dict[str, Any]]:
+    return _load_history()
 
 
-def get_dashboard_summary():
-    history = load_history()
+def _avg(items: List[Dict[str, Any]], key: str) -> int:
+    values = [float(item.get(key, 0)) for item in items]
+    if not values:
+        return 0
+    return int(round(sum(values) / len(values)))
 
-    if not history:
-        return {
-            "total_customers": 0,
-            "avg_loyalty": 0,
-            "avg_not_loyal_risk": 0,
-            "avg_repeat_probability": 0,
-            "avg_purchase_intent": 0,
-            "segments": [],
-            "monthly": [],
-            "latest": []
-        }
 
+def get_dashboard_summary() -> Dict[str, Any]:
+    history = _load_history()
     total = len(history)
 
-    avg_loyalty = round(sum(x["loyalty_percent"] for x in history) / total, 2)
-    avg_risk = round(sum(x["not_loyal_risk"] for x in history) / total, 2)
-    avg_repeat = round(sum(x["repeat_probability"] for x in history) / total, 2)
-    avg_purchase = round(sum(x["purchase_intent"] for x in history) / total, 2)
-
-    segment_count = {}
-    for item in history:
-        name = item["segment_name"]
-        segment_count[name] = segment_count.get(name, 0) + 1
-
+    segment_counts = Counter(item.get("segment_name", "Unknown") for item in history)
     segments = [
-        {
-            "name": name,
-            "count": count,
-            "percent": round((count / total) * 100, 2)
-        }
-        for name, count in segment_count.items()
+        {"name": name, "count": count}
+        for name, count in segment_counts.most_common()
     ]
 
-    monthly_map = {}
+    grouped: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     for item in history:
-        date_key = item["created_at"][:10]
+        date_key = str(item.get("created_at", ""))[:10] or "ไม่ทราบวันที่"
+        grouped[date_key].append(item)
 
-        if date_key not in monthly_map:
-            monthly_map[date_key] = {
-                "date": date_key,
-                "count": 0,
-                "loyalty_sum": 0,
-                "risk_sum": 0,
-                "repeat_sum": 0
-            }
+    monthly = [
+        {
+            "date": date,
+            "count": len(items),
+            "avg_loyalty": _avg(items, "loyalty_percent"),
+            "avg_risk": _avg(items, "not_loyal_risk"),
+            "avg_repeat": _avg(items, "repeat_probability"),
+        }
+        for date, items in sorted(grouped.items())
+    ]
 
-        monthly_map[date_key]["count"] += 1
-        monthly_map[date_key]["loyalty_sum"] += item["loyalty_percent"]
-        monthly_map[date_key]["risk_sum"] += item["not_loyal_risk"]
-        monthly_map[date_key]["repeat_sum"] += item["repeat_probability"]
-
-    monthly = []
-    for row in monthly_map.values():
-        count = row["count"]
-        monthly.append({
-            "date": row["date"],
-            "count": count,
-            "avg_loyalty": round(row["loyalty_sum"] / count, 2),
-            "avg_risk": round(row["risk_sum"] / count, 2),
-            "avg_repeat": round(row["repeat_sum"] / count, 2),
-        })
-
-    monthly = sorted(monthly, key=lambda x: x["date"])
+    latest = list(reversed(history[-10:]))
 
     return {
         "total_customers": total,
-        "avg_loyalty": avg_loyalty,
-        "avg_not_loyal_risk": avg_risk,
-        "avg_repeat_probability": avg_repeat,
-        "avg_purchase_intent": avg_purchase,
+        "avg_loyalty": _avg(history, "loyalty_percent"),
+        "avg_not_loyal_risk": _avg(history, "not_loyal_risk"),
+        "avg_repeat_probability": _avg(history, "repeat_probability"),
+        "avg_purchase_intent": _avg(history, "purchase_intent"),
         "segments": segments,
         "monthly": monthly,
-        "latest": history[-10:][::-1]
+        "latest": latest,
     }
